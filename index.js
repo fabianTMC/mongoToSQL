@@ -1,5 +1,61 @@
 var Errors = {
-    "MISSING_ID": "Missing _id field"
+    MISSING_ID: "Missing _id field",
+    INVALID_FIELD: function(field) {
+        return "`" + field + "` is not present in the given fields list"
+    },
+    UNSUPPORTED_ACCUMULATOR: function(acc) {
+        return "Unsuported accumulator in `" + JSON.stringify(acc) + "`"
+    },
+    UNSUPPORTED_ACCUMULATOR_EXPRESSION: function(acc) {
+        return "Unsuported accumulator expression in `" + JSON.stringify(acc) + "`"
+    }
+}
+
+function convertAccumulators(allFields, key, obj) {
+    if(obj['$sum']) {
+        // Check if we have one field or multiple or if we have to run a count
+        switch(typeof obj['$sum']) {
+            case "number": {
+                let query = "COUNT(*)";
+                if(obj['$sum'] > 1) {
+                    query += " * " + obj['$sum']
+                }
+
+                return {
+                    success: true,
+                    query: query
+                };
+            }
+
+            case "string": {
+                // Check if the string is a valid field
+                if(obj['$sum'][0] == "$" && allFields.indexOf(obj['$sum'].slice(1)) != -1) {
+                    return {
+                        success: true,
+                        query: "COUNT(" + obj['$sum'].slice(1) + ")"
+                    };
+                } else {
+                    return {
+                        success: false,
+                        error: Errors.INVALID_FIELD(obj['$sum'])
+                    };
+                }
+            }
+
+            default: {
+                return {
+                    success: false,
+                    error: Errors.UNSUPPORTED_ACCUMULATOR_EXPRESSION(obj)
+                }
+            }
+        }
+    } else {
+        // Unsupported accumulator
+        return {
+            success: false,
+            error: Errors.UNSUPPORTED_ACCUMULATOR(obj)
+        }
+    }
 }
 
 function convert(resource, fields, stage) {
@@ -10,13 +66,34 @@ function convert(resource, fields, stage) {
         if(stage['$group']['_id'] !== undefined) {
             query += 'SELECT';
 
-            // Iterate over all the keys
+            // Iterate over all the keys after removing the _id field
             let keys = Object.keys(stage['$group']);
             keys.splice(keys.indexOf("_id"), 1);
+
             if(keys.length > 0) {
                 for(let i = 0; i < keys.length; i++) {
-                    if(fields.indexOf((field = keys[i])) != -1) {
-                        query += " " + stage['$group'][field] + " as " + field + ',';
+                    let field = keys[i];
+                    let fieldValue = stage['$group'][field];
+
+                    switch(typeof fieldValue) {
+                        case "string": {
+                            // Check if the fieldValue is a valid key
+                            if(fieldValue[0] == "$" && fields.indexOf(fieldValue.slice(1)) != -1) {
+                                query += " " + fieldValue.slice(1) + " as " + field + ',';
+                            } else {
+                                query += " '" + fieldValue + "' as " + field + ',';
+                            }
+                            break;
+                        }
+
+                        case "object": {
+                            let result = convertAccumulators(fields, field, fieldValue);
+                            if(result.success) {
+                                query += " " + result.query + " as " + field + ',';
+                            } else {
+                                return result;
+                            }
+                        }
                     }
                 }
 
