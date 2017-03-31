@@ -1,3 +1,7 @@
+var Errors = {
+    "MISSING_ID": "Missing _id field"
+}
+
 function convert(resource, fields, stage) {
     // Create the aggregation query
     let query = "";
@@ -30,9 +34,15 @@ function convert(resource, fields, stage) {
                 query += " GROUP BY " + stage['$group']['_id'];
             }
 
-            return query;
+            return {
+                success: true,
+                query: query
+            };
         } else {
-            return "Missing _id field";
+            return {
+                success: false,
+                error: Errors.MISSING_ID
+            };
         }
     }
 }
@@ -41,24 +51,25 @@ function convert2(resource, fields, pipeline) {
     let lastResource = resource;
     let lastQuery = "";
 
-    if(pipeline.length > 1) {
-        for(let i = 0; i < pipeline.length; i++) {
-            lastQuery = convert(lastResource, fields, pipeline[i]);
+    for(let i = 0; i < pipeline.length; i++) {
+        lastQuery = convert(lastResource, fields, pipeline[i]);
 
+        // Check if anything went wrong
+        if(lastQuery.success) {
             // Check if this is the last stage in the pipeline
             if((i + 1) != pipeline.length) {
-                lastResource = "(" + lastQuery +") t" + i;
+                lastResource = "(" + lastQuery.query +") t" + i;
             } else {
-                lastResource = lastQuery;
+                lastResource = lastQuery.query;
             }
+        } else {
+            return lastQuery.error;
         }
-    } else {
-        return convert(lastResource, fields, pipeline[0]);
     }
-
     return lastResource;
 }
 
 module.exports = {
-    convert: convert2
+    convert: convert2,
+    Errors: Errors
 }
