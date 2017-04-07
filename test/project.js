@@ -78,4 +78,16 @@ describe('$project tests', function() {
 
         assert.equal(result, "SELECT custom FROM loginstore");
     })
+
+    it('should select the fields that are not present in the fields list when prefixed with $', function() {
+        let result = mongoToSQL.convert(resource, fields, [
+            {
+                "$project": {
+                    "custom": "$custom"
+                }
+            }
+        ]);
+
+        assert.equal(result, "SELECT custom as custom FROM loginstore");
+    })
 });

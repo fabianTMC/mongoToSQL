@@ -205,4 +205,19 @@ describe('$group tests', function() {
 
         assert.equal(result, "SELECT COUNT(*) * 2 as count, user_id as user_id, age as age FROM loginstore GROUP BY user_id");
     })
+
+    it('should run a grouping on one level despite the $sum field not being in the field list', function() {
+        let result = mongoToSQL.convert(resource, fields, [
+            {"$group": {
+                _id: "$user_id", // GROUP BY
+                count: {
+                    "$sum": "$custom"
+                },
+                user_id: "$user_id",
+                age: "$age"
+            }}
+        ]);
+
+        assert.equal(result, "SELECT COUNT(custom) as count, user_id as user_id, age as age FROM loginstore GROUP BY user_id");
+    })
 });
