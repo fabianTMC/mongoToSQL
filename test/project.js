@@ -12,7 +12,7 @@ describe('$project tests', function() {
             }
         ]);
 
-        assert.equal(result, mongoToSQL.Errors.EMPTY_PROJECTION, "Empty projection failed");
+        assert.equal(result, mongoToSQL.Errors.EMPTY_PROJECTION);
     })
 
     it('throw an error as both inclusion and exclusion were run', function() {
@@ -37,7 +37,7 @@ describe('$project tests', function() {
             }
         ]);
 
-        assert.equal(result, "SELECT user_id FROM loginstore", "Failed to select user_id");
+        assert.equal(result, "SELECT user_id FROM loginstore");
     })
 
     it('should select the user_id and verified fields', function() {
@@ -65,5 +65,17 @@ describe('$project tests', function() {
         ]);
 
         assert.equal(result, "SELECT user_id, verified as verified, 'custom' as custom FROM loginstore");
+    })
+
+    it('should select the fields that are not present in the fields list', function() {
+        let result = mongoToSQL.convert(resource, fields, [
+            {
+                "$project": {
+                    "custom": 1
+                }
+            }
+        ]);
+
+        assert.equal(result, "SELECT custom FROM loginstore");
     })
 });

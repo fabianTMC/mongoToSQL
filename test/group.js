@@ -12,7 +12,7 @@ describe('$group tests', function() {
             }}
         ]);
 
-        assert.equal(result, mongoToSQL.Errors.EMPTY_GROUPING, "Empty grouping test failed");
+        assert.equal(result, mongoToSQL.Errors.EMPTY_GROUPING);
     })
 
     it('should fail because of the missing _id field', function() {
@@ -26,7 +26,7 @@ describe('$group tests', function() {
             }}
         ]);
 
-        assert.equal(result, mongoToSQL.Errors.MISSING_ID, "Missing _id field test failed");
+        assert.equal(result, mongoToSQL.Errors.MISSING_ID);
     })
 
     it('should fail because of the missing _id field in the second stage', function() {
@@ -48,7 +48,7 @@ describe('$group tests', function() {
             }}
         ]);
 
-        assert.equal(result, mongoToSQL.Errors.MISSING_ID, "Missing _id field test failed");
+        assert.equal(result, mongoToSQL.Errors.MISSING_ID);
     })
 
     it('should run a grouping by a string because of the misssing $ in _id', function() {
@@ -84,7 +84,7 @@ describe('$group tests', function() {
             }}
         ]);
 
-        assert.equal(result, "SELECT COUNT(*) as count FROM (SELECT COUNT(*) as count, user_id as user_id, age as age FROM loginstore GROUP BY 'user_id') t0 GROUP BY 'age'", "Two level grouping failed");
+        assert.equal(result, "SELECT COUNT(*) as count FROM (SELECT COUNT(*) as count, user_id as user_id, age as age FROM loginstore GROUP BY 'user_id') t0 GROUP BY 'age'");
     })
 
 
@@ -100,7 +100,7 @@ describe('$group tests', function() {
             }}
         ]);
 
-        assert.equal(result, "SELECT COUNT(*) as count, user_id as user_id, age as age FROM loginstore GROUP BY user_id", "First level grouping failed");
+        assert.equal(result, "SELECT COUNT(*) as count, user_id as user_id, age as age FROM loginstore GROUP BY user_id");
     })
 
     it('should run a grouping on two levels', function() {
@@ -121,7 +121,7 @@ describe('$group tests', function() {
             }}
         ]);
 
-        assert.equal(result, "SELECT COUNT(*) as count FROM (SELECT COUNT(*) as count, user_id as user_id, age as age FROM loginstore GROUP BY user_id) t0 GROUP BY age", "Two level grouping failed");
+        assert.equal(result, "SELECT COUNT(*) as count FROM (SELECT COUNT(*) as count, user_id as user_id, age as age FROM loginstore GROUP BY user_id) t0 GROUP BY age");
     })
 
     it('should add a string as a field because of the missing $ (one level)', function() {
@@ -136,7 +136,7 @@ describe('$group tests', function() {
             }}
         ]);
 
-        assert.equal(result, "SELECT COUNT(*) as count, 'user_id' as user_id, age as age FROM loginstore GROUP BY user_id", "String as a field on one level failed");
+        assert.equal(result, "SELECT COUNT(*) as count, 'user_id' as user_id, age as age FROM loginstore GROUP BY user_id");
     })
 
     it('should add a string as a field because of the missing $ (two level)', function() {
@@ -158,7 +158,7 @@ describe('$group tests', function() {
             }}
         ]);
 
-        assert.equal(result, "SELECT COUNT(*) as count, 'age' as age FROM (SELECT COUNT(*) as count, 'user_id' as user_id, age as age FROM loginstore GROUP BY user_id) t0 GROUP BY age", "String as a field on two levels failed");
+        assert.equal(result, "SELECT COUNT(*) as count, 'age' as age FROM (SELECT COUNT(*) as count, 'user_id' as user_id, age as age FROM loginstore GROUP BY user_id) t0 GROUP BY age");
     })
 
     it('should count all the verified fields', function() {
@@ -173,7 +173,7 @@ describe('$group tests', function() {
             }}
         ]);
 
-        assert.equal(result, "SELECT COUNT(verified) as count, user_id as user_id, age as age FROM loginstore GROUP BY user_id", "Count of verified fields failed");
+        assert.equal(result, "SELECT COUNT(verified) as count, user_id as user_id, age as age FROM loginstore GROUP BY user_id");
     })
 
     it('should fail to count all the verified fields becasuse of the missing $', function() {
@@ -188,7 +188,7 @@ describe('$group tests', function() {
             }}
         ]);
 
-        assert.equal(result, mongoToSQL.Errors.INVALID_FIELD('verified'), "Failure to count verified fields due to missing $ failed");
+        assert.equal(result, mongoToSQL.Errors.INVALID_FIELD('verified'));
     })
 
     it('should count all fields multiplied by a factor of 2', function() {
@@ -203,6 +203,6 @@ describe('$group tests', function() {
             }}
         ]);
 
-        assert.equal(result, "SELECT COUNT(*) * 2 as count, user_id as user_id, age as age FROM loginstore GROUP BY user_id", "Count of verified fields failed");
+        assert.equal(result, "SELECT COUNT(*) * 2 as count, user_id as user_id, age as age FROM loginstore GROUP BY user_id");
     })
 });
