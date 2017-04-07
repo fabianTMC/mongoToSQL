@@ -1,12 +1,13 @@
 # MongoToSQL - Convert MongoDB aggregation pipelines to their SQL equivalent
-============================================================================
+----
 
 ## Supported pipelines
-----------------------
+----
 * $group
+* $project
 
 ## Supported $group operators
------------------------------
+----
 * $sum
     * NOTE: $sum currently does not support nested operators or multiple expressions through an array.
 
