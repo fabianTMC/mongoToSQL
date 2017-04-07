@@ -10,5 +10,8 @@
         "mocha": "./node_modules/mocha/bin/mocha"
     },
     "author": "Fabian Enos <fabian.enos@gmail.com>",
-    "license": "ISC"
+    "license": "ISC",
+    "devDependencies": {
+        "eslint": "^3.19.0"
+    }
 }
