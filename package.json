@@ -12,6 +12,11 @@
     "author": "Fabian Enos <fabian.enos@gmail.com>",
     "license": "ISC",
     "devDependencies": {
-        "eslint": "^3.19.0"
+        "chai": "^3.5.0",
+        "eslint": "^3.19.0",
+        "mocha": "^3.3.0"
+    },
+    "dependencies": {
+        "mysql": "^2.13.0"
     }
 }

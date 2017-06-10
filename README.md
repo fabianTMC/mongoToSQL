@@ -5,16 +5,24 @@
 ----
 * $group
 * $project
+* $match
 
 ## Supported $group operators
 ----
 * $sum
     * NOTE: $sum currently does not support nested operators or multiple expressions through an array.
 
+## $match notes
+* This library currently only supports comparisons with numbers. Strings and arrays are not compared and will cause an error when used with $eq despite (MongoDB's support for the same)[https://docs.mongodb.com/manual/reference/operator/query/eq/#match-an-array-value].
+
+* $ne will only match values and not strings at the moment.
+
+* Only arrays can be passed as the value to the $in operator.
+
 
 # Example Usage
 -------
-For a complete understanding and set of examples for how to use this library, please refer to the tests folder.
+For a complete understanding and set of examples for how to use this library, please refer to the **tests** folder.
 
 Using $sum:
 ```
