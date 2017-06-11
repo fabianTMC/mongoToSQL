@@ -12,6 +12,37 @@
 * $sum
     * NOTE: $sum currently does not support nested operators or multiple expressions through an array.
 
+## $match usage
+```javascript
+$match(matchObject, tableName, options)
+```
+
+* options (optional): A hashmap of options 
+    * headless: Should the `SELECT * FROM tableName` be included. Defaults to `true`.
+
+Example usage
+```javascript
+$match({
+    status: "D",
+    qty: 2
+}, 
+"inventory", 
+{
+    headless: true
+});
+```
+will return
+
+```sql
+WHERE status = 'D' AND qty = 2
+```
+
+Without the headless option specified, it will return
+```sql
+SELECT * FROM inventory WHERE status = 'D' AND qty = 2
+```
+
+
 ## $match notes
 * This library currently only supports comparisons with numbers. Strings and arrays are not compared and will cause an error when used with $eq despite (MongoDB's support for the same)[https://docs.mongodb.com/manual/reference/operator/query/eq/#match-an-array-value].
 
