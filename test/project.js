@@ -6,7 +6,7 @@ let fields = ["verified", "user_id", "count", "age"];
 
 describe('$project tests', function () {
     it('should throw an error as the projection is empty', function () {
-        let result = mongoToSQL.convert(resource, fields, [
+        let result = mongoToSQL.convert(resource, [
             {
                 "$project": {}
             }
@@ -16,7 +16,7 @@ describe('$project tests', function () {
     })
 
     it('throw an error as both inclusion and exclusion were run', function () {
-        let result = mongoToSQL.convert(resource, fields, [
+        let result = mongoToSQL.convert(resource, [
             {
                 "$project": {
                     "user_id": 0,
@@ -29,7 +29,7 @@ describe('$project tests', function () {
     })
 
     it('should select only the user_id', function () {
-        let result = mongoToSQL.convert(resource, fields, [
+        let result = mongoToSQL.convert(resource, [
             {
                 "$project": {
                     "user_id": 1
@@ -37,11 +37,11 @@ describe('$project tests', function () {
             }
         ]);
 
-        assert.equal(result, "SELECT user_id FROM loginstore");
+        assert.equal(result, "SELECT `user_id` FROM `loginstore`");
     })
 
     it('should select the user_id and verified fields', function () {
-        let result = mongoToSQL.convert(resource, fields, [
+        let result = mongoToSQL.convert(resource, [
             {
                 "$project": {
                     "user_id": 1,
@@ -50,7 +50,7 @@ describe('$project tests', function () {
             }
         ]);
 
-        assert.equal(result, "SELECT user_id, verified as verified FROM loginstore");
+        assert.equal(result, "SELECT `user_id`, `verified` as `verified` FROM `loginstore`");
     });
 
     it('should select the user_id and verified fields without the table name', function () {
@@ -60,18 +60,18 @@ describe('$project tests', function () {
                 "verified": "$verified"
             }, 
             resource, 
-            fields, 
+         
             {
                 headless: true
             }
         );
 
         assert.equal(result.success, true);
-        assert.equal(result.query, "SELECT user_id, verified as verified");
+        assert.equal(result.query, "SELECT `user_id`, `verified` as `verified`");
     });
 
     it('should select the user_id, verified and custom fields', function () {
-        let result = mongoToSQL.convert(resource, fields, [
+        let result = mongoToSQL.convert(resource, [
             {
                 "$project": {
                     "user_id": 1,
@@ -81,11 +81,11 @@ describe('$project tests', function () {
             }
         ]);
 
-        assert.equal(result, "SELECT user_id, verified as verified, 'custom' as custom FROM loginstore");
+        assert.equal(result, "SELECT `user_id`, `verified` as `verified`, 'custom' as `custom` FROM `loginstore`");
     })
 
     it('should select the fields that are not present in the fields list', function () {
-        let result = mongoToSQL.convert(resource, fields, [
+        let result = mongoToSQL.convert(resource, [
             {
                 "$project": {
                     "custom": 1
@@ -93,11 +93,11 @@ describe('$project tests', function () {
             }
         ]);
 
-        assert.equal(result, "SELECT custom FROM loginstore");
+        assert.equal(result, "SELECT `custom` FROM `loginstore`");
     })
 
     it('should select the fields that are not present in the fields list when prefixed with $', function () {
-        let result = mongoToSQL.convert(resource, fields, [
+        let result = mongoToSQL.convert(resource, [
             {
                 "$project": {
                     "custom": "$custom"
@@ -105,6 +105,6 @@ describe('$project tests', function () {
             }
         ]);
 
-        assert.equal(result, "SELECT custom as custom FROM loginstore");
+        assert.equal(result, "SELECT `custom` as `custom` FROM `loginstore`");
     });
 });

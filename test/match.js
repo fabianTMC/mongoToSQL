@@ -5,7 +5,7 @@ let resource = "inventory";
 
 describe('$match tests using mongoToSQL', function() {
     it('should fail because of the empty $match', function() {
-        let result = mongoToSQL.convert(resource, [], [
+        let result = mongoToSQL.convert(resource, [
         {"$match": {
             
         }}
@@ -15,7 +15,7 @@ describe('$match tests using mongoToSQL', function() {
     });
     
     it('should succeed because of the one match value', function() {
-        let result = mongoToSQL.convert(resource, [], [
+        let result = mongoToSQL.convert(resource, [
         {"$match": {
             status: "D"
         }}
@@ -25,7 +25,7 @@ describe('$match tests using mongoToSQL', function() {
     });
     
     it('should succeed because of the two match values', function() {
-        let result = mongoToSQL.convert(resource, [], [
+        let result = mongoToSQL.convert(resource, [
         {"$match": {
             status: "D",
             qty: 2
@@ -36,7 +36,7 @@ describe('$match tests using mongoToSQL', function() {
     });
     
     it('should succeed because of a valid $in operator', function() {
-        let result = mongoToSQL.convert(resource, [], [
+        let result = mongoToSQL.convert(resource, [
         {"$match": {
             status: {
                 $in: ["A", "D"]
@@ -48,7 +48,7 @@ describe('$match tests using mongoToSQL', function() {
     });
     
     it('should succeed because of a valid $in operator with numbers', function() {
-        let result = mongoToSQL.convert(resource, [], [
+        let result = mongoToSQL.convert(resource, [
         {"$match": {
             qty: {
                 $in: [2, 3]
@@ -60,7 +60,7 @@ describe('$match tests using mongoToSQL', function() {
     });
     
     it('should succeed because of a valid $in operator and value match', function() {
-        let result = mongoToSQL.convert(resource, [], [
+        let result = mongoToSQL.convert(resource, [
         {"$match": {
             status: {
                 $in: ["A", "D"]
@@ -73,7 +73,7 @@ describe('$match tests using mongoToSQL', function() {
     });
     
     it('should succeed because of a valid $nin operator', function() {
-        let result = mongoToSQL.convert(resource, [], [
+        let result = mongoToSQL.convert(resource, [
         {"$match": {
             status: {
                 $nin: ["A", "D"]
@@ -85,7 +85,7 @@ describe('$match tests using mongoToSQL', function() {
     });
     
     it('should succeed because of a valid $nin operator with numbers', function() {
-        let result = mongoToSQL.convert(resource, [], [
+        let result = mongoToSQL.convert(resource, [
         {"$match": {
             qty: {
                 $nin: [2, 3]
@@ -97,7 +97,7 @@ describe('$match tests using mongoToSQL', function() {
     });
     
     it('should succeed because of a valid $nin operator and value match', function() {
-        let result = mongoToSQL.convert(resource, [], [
+        let result = mongoToSQL.convert(resource, [
         {"$match": {
             status: {
                 $nin: ["A", "D"]
@@ -110,7 +110,7 @@ describe('$match tests using mongoToSQL', function() {
     });
     
     it('should succeed because of a valid $nin operator and valid $in operator', function() {
-        let result = mongoToSQL.convert(resource, [], [
+        let result = mongoToSQL.convert(resource, [
         {"$match": {
             status: {
                 $nin: ["A", "D"]
@@ -127,7 +127,7 @@ describe('$match tests using mongoToSQL', function() {
     // NOTE: Since $in and $ini use the same function internally, to test 
     // failure for one is to test failure for the other
     it('should fail because of an invalid $in operator', function() {
-        let result = mongoToSQL.convert(resource, [], [
+        let result = mongoToSQL.convert(resource, [
         {"$match": {
             status: {
                 $in: []
@@ -139,7 +139,7 @@ describe('$match tests using mongoToSQL', function() {
     });
     
     it('should fail because of an invalid $in operator', function() {
-        let result = mongoToSQL.convert(resource, [], [
+        let result = mongoToSQL.convert(resource, [
         {"$match": {
             status: {
                 $in: "abc"
@@ -151,7 +151,7 @@ describe('$match tests using mongoToSQL', function() {
     });
     
     it('should fail because of an invalid $in operator', function() {
-        let result = mongoToSQL.convert(resource, [], [
+        let result = mongoToSQL.convert(resource, [
         {"$match": {
             status: {
                 $in: 1
@@ -163,7 +163,7 @@ describe('$match tests using mongoToSQL', function() {
     });
     
     it('should succeed because of a valid $lt operator', function() {
-        let result = mongoToSQL.convert(resource, [], [
+        let result = mongoToSQL.convert(resource, [
         {"$match": {
             qty: {
                 $lt: 2
@@ -175,7 +175,7 @@ describe('$match tests using mongoToSQL', function() {
     });
     
     it('should succeed because of a valid $gt operator', function() {
-        let result = mongoToSQL.convert(resource, [], [
+        let result = mongoToSQL.convert(resource, [
         {"$match": {
             qty: {
                 $gt: 2
@@ -187,7 +187,7 @@ describe('$match tests using mongoToSQL', function() {
     });
     
     it('should succeed because of a valid $lte operator', function() {
-        let result = mongoToSQL.convert(resource, [], [
+        let result = mongoToSQL.convert(resource, [
         {"$match": {
             qty: {
                 $lte: 2
@@ -199,7 +199,7 @@ describe('$match tests using mongoToSQL', function() {
     });
     
     it('should succeed because of a valid $gte operator', function() {
-        let result = mongoToSQL.convert(resource, [], [
+        let result = mongoToSQL.convert(resource, [
         {"$match": {
             qty: {
                 $gte: 2.2
@@ -211,7 +211,7 @@ describe('$match tests using mongoToSQL', function() {
     });
     
     it('should succeed because of a valid $eq operator', function() {
-        let result = mongoToSQL.convert(resource, [], [
+        let result = mongoToSQL.convert(resource, [
         {"$match": {
             qty: {
                 $eq: 2
@@ -223,7 +223,7 @@ describe('$match tests using mongoToSQL', function() {
     });
     
     it('should succeed because of a valid $ne operator', function() {
-        let result = mongoToSQL.convert(resource, [], [
+        let result = mongoToSQL.convert(resource, [
         {"$match": {
             qty: {
                 $ne: 2
@@ -237,7 +237,7 @@ describe('$match tests using mongoToSQL', function() {
     // NOTE: Since $lt, $gt, $gte, $lte, $eq use the same function internally, to test 
     // failure for one is to test failure for all
     it('should fail because of a invalid $lt operator', function() {
-        let result = mongoToSQL.convert(resource, [], [
+        let result = mongoToSQL.convert(resource, [
         {"$match": {
             qty: {
                 $lt: "a"
@@ -249,7 +249,7 @@ describe('$match tests using mongoToSQL', function() {
     });
     
     it('should fail because of a invalid $lt operator', function() {
-        let result = mongoToSQL.convert(resource, [], [
+        let result = mongoToSQL.convert(resource, [
         {"$match": {
             qty: {
                 $lt: [2]
@@ -261,7 +261,7 @@ describe('$match tests using mongoToSQL', function() {
     });
     
     it('should succeed because of a valid $or operator', function() {
-        let result = mongoToSQL.convert(resource, [], [
+        let result = mongoToSQL.convert(resource, [
         {"$match": {
             $or: [
             {
@@ -278,7 +278,7 @@ describe('$match tests using mongoToSQL', function() {
     });
     
     it('should succeed because of a valid $or operator with mixed operators', function() {
-        let result = mongoToSQL.convert(resource, [], [
+        let result = mongoToSQL.convert(resource, [
         {"$match": {
             $or: [
             {
@@ -297,7 +297,7 @@ describe('$match tests using mongoToSQL', function() {
     });
     
     it('should succeed because of a valid $or operator with mixed operators and an implicit AND', function() {
-        let result = mongoToSQL.convert(resource, [], [
+        let result = mongoToSQL.convert(resource, [
         {"$match": {
             type: 3,
             $or: [
@@ -317,7 +317,7 @@ describe('$match tests using mongoToSQL', function() {
     });
     
     it('should succeed because of a valid $and operator', function() {
-        let result = mongoToSQL.convert(resource, [], [
+        let result = mongoToSQL.convert(resource, [
         {"$match": {
             $and: [
             {
@@ -334,7 +334,7 @@ describe('$match tests using mongoToSQL', function() {
     });
     
     it('should succeed because of a valid $and operator with mixed operators', function() {
-        let result = mongoToSQL.convert(resource, [], [
+        let result = mongoToSQL.convert(resource, [
         {"$match": {
             $and: [
             {
@@ -355,7 +355,7 @@ describe('$match tests using mongoToSQL', function() {
     // NOTE: Since $or and $and use the same function internally, to test 
     // failure for one is to test failure for all
     it('should fail because of an invalid $or operator', function() {
-        let result = mongoToSQL.convert(resource, [], [
+        let result = mongoToSQL.convert(resource, [
         {"$match": {
             $or: []
         }}
@@ -365,7 +365,7 @@ describe('$match tests using mongoToSQL', function() {
     });
     
     it('should fail because of an invalid $or operator', function() {
-        let result = mongoToSQL.convert(resource, [], [
+        let result = mongoToSQL.convert(resource, [
         {"$match": {
             $or: false
         }}

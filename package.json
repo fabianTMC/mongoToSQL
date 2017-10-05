@@ -17,6 +17,7 @@
         "mocha": "^3.3.0"
     },
     "dependencies": {
-        "mysql": "^2.13.0"
+        "mysql": "^2.13.0",
+        "shortid": "^2.2.8"
     }
 }

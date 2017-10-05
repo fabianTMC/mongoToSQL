@@ -6,11 +6,36 @@
 * $group
 * $project
 * $match
+* $lookup
 
 ## Supported $group operators
 ----
 * $sum
     * NOTE: $sum currently does not support nested operators or multiple expressions through an array.
+
+## $lookup
+----
+$lookup as per the [MongoDB documentation](https://docs.mongodb.com/manual/reference/operator/aggregation/lookup/) performs a left outer join. This behaviour has been mirrored here. To change the type of join, please specify the `joinType` key in the $lookup object.
+
+The difference with the `as` key is that it takes an object that will map from the result to the table that is being joined with.
+
+For example:
+```javascript
+    $lookup({
+        from: "states",
+        localField: "state_id",
+        foreignField: "id",
+        as: {
+            stateName: "name",
+            stateId: "id"
+        }
+    })
+```
+will return
+
+```sql
+    SELECT t2.name as stateName, t2.id as stateId FROM (SELECT * FROM currentTable) t1 LEFT JOIN (SELECT * FROM states) t2 ON t1.state_id = t2.id
+```
 
 ## $match usage
 ```javascript
@@ -58,9 +83,8 @@ For a complete understanding and set of examples for how to use this library, pl
 Using $sum:
 ```
 let collectionName = "loginstore";
-let collectionFields = ["verified", "user_id", "count", "age"];
 
-mongoToSQL.convert(collectionName, collectionFields, [
+mongoToSQL.convert(collectionName, [
     {"$group": {
         count: {
             "$sum": 1
