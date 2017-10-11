@@ -21,7 +21,7 @@ describe('$match tests using mongoToSQL', function() {
         }}
         ]);
         
-        assert.equal(result, "SELECT * FROM inventory WHERE `status` = 'D'");
+        assert.equal(result, "SELECT * FROM `inventory` WHERE `status` = 'D'");
     });
     
     it('should succeed because of the two match values', function() {
@@ -32,7 +32,7 @@ describe('$match tests using mongoToSQL', function() {
         }}
         ]);
         
-        assert.equal(result, "SELECT * FROM inventory WHERE `status` = 'D' AND `qty` = 2");
+        assert.equal(result, "SELECT * FROM `inventory` WHERE `status` = 'D' AND `qty` = 2");
     });
     
     it('should succeed because of a valid $in operator', function() {
@@ -44,7 +44,7 @@ describe('$match tests using mongoToSQL', function() {
         }}
         ]);
         
-        assert.equal(result, "SELECT * FROM inventory WHERE `status` in ('A','D')");
+        assert.equal(result, "SELECT * FROM `inventory` WHERE `status` in ('A','D')");
     });
     
     it('should succeed because of a valid $in operator with numbers', function() {
@@ -56,7 +56,7 @@ describe('$match tests using mongoToSQL', function() {
         }}
         ]);
         
-        assert.equal(result, "SELECT * FROM inventory WHERE `qty` in (2,3)");
+        assert.equal(result, "SELECT * FROM `inventory` WHERE `qty` in (2,3)");
     });
     
     it('should succeed because of a valid $in operator and value match', function() {
@@ -69,7 +69,7 @@ describe('$match tests using mongoToSQL', function() {
         }}
         ]);
         
-        assert.equal(result, "SELECT * FROM inventory WHERE `status` in ('A','D') AND `qty` = 2");
+        assert.equal(result, "SELECT * FROM `inventory` WHERE `status` in ('A','D') AND `qty` = 2");
     });
     
     it('should succeed because of a valid $nin operator', function() {
@@ -81,7 +81,7 @@ describe('$match tests using mongoToSQL', function() {
         }}
         ]);
         
-        assert.equal(result, "SELECT * FROM inventory WHERE `status` not in ('A','D')");
+        assert.equal(result, "SELECT * FROM `inventory` WHERE `status` not in ('A','D')");
     });
     
     it('should succeed because of a valid $nin operator with numbers', function() {
@@ -93,7 +93,7 @@ describe('$match tests using mongoToSQL', function() {
         }}
         ]);
         
-        assert.equal(result, "SELECT * FROM inventory WHERE `qty` not in (2,3)");
+        assert.equal(result, "SELECT * FROM `inventory` WHERE `qty` not in (2,3)");
     });
     
     it('should succeed because of a valid $nin operator and value match', function() {
@@ -106,7 +106,7 @@ describe('$match tests using mongoToSQL', function() {
         }}
         ]);
         
-        assert.equal(result, "SELECT * FROM inventory WHERE `status` not in ('A','D') AND `qty` = 2");
+        assert.equal(result, "SELECT * FROM `inventory` WHERE `status` not in ('A','D') AND `qty` = 2");
     });
     
     it('should succeed because of a valid $nin operator and valid $in operator', function() {
@@ -121,7 +121,7 @@ describe('$match tests using mongoToSQL', function() {
         }}
         ]);
         
-        assert.equal(result, "SELECT * FROM inventory WHERE `status` not in ('A','D') AND `qty` in (2,3)");
+        assert.equal(result, "SELECT * FROM `inventory` WHERE `status` not in ('A','D') AND `qty` in (2,3)");
     });
     
     // NOTE: Since $in and $ini use the same function internally, to test 
@@ -171,7 +171,7 @@ describe('$match tests using mongoToSQL', function() {
         }}
         ]);
         
-        assert.equal(result, "SELECT * FROM inventory WHERE `qty` < 2");
+        assert.equal(result, "SELECT * FROM `inventory` WHERE `qty` < 2");
     });
     
     it('should succeed because of a valid $gt operator', function() {
@@ -183,7 +183,7 @@ describe('$match tests using mongoToSQL', function() {
         }}
         ]);
         
-        assert.equal(result, "SELECT * FROM inventory WHERE `qty` > 2");
+        assert.equal(result, "SELECT * FROM `inventory` WHERE `qty` > 2");
     });
     
     it('should succeed because of a valid $lte operator', function() {
@@ -195,7 +195,7 @@ describe('$match tests using mongoToSQL', function() {
         }}
         ]);
         
-        assert.equal(result, "SELECT * FROM inventory WHERE `qty` <= 2");
+        assert.equal(result, "SELECT * FROM `inventory` WHERE `qty` <= 2");
     });
     
     it('should succeed because of a valid $gte operator', function() {
@@ -207,7 +207,7 @@ describe('$match tests using mongoToSQL', function() {
         }}
         ]);
         
-        assert.equal(result, "SELECT * FROM inventory WHERE `qty` >= 2.2");
+        assert.equal(result, "SELECT * FROM `inventory` WHERE `qty` >= 2.2");
     });
     
     it('should succeed because of a valid $eq operator', function() {
@@ -219,7 +219,7 @@ describe('$match tests using mongoToSQL', function() {
         }}
         ]);
         
-        assert.equal(result, "SELECT * FROM inventory WHERE `qty` = 2");
+        assert.equal(result, "SELECT * FROM `inventory` WHERE `qty` = 2");
     });
     
     it('should succeed because of a valid $ne operator', function() {
@@ -231,7 +231,7 @@ describe('$match tests using mongoToSQL', function() {
         }}
         ]);
         
-        assert.equal(result, "SELECT * FROM inventory WHERE `qty` != 2");
+        assert.equal(result, "SELECT * FROM `inventory` WHERE `qty` != 2");
     });
     
     // NOTE: Since $lt, $gt, $gte, $lte, $eq use the same function internally, to test 
@@ -274,7 +274,7 @@ describe('$match tests using mongoToSQL', function() {
         }}
         ]);
         
-        assert.equal(result, "SELECT * FROM inventory WHERE ( `qty` = 2 OR `status` = 'D' )");
+        assert.equal(result, "SELECT * FROM `inventory` WHERE ( `qty` = 2 OR `status` = 'D' )");
     });
     
     it('should succeed because of a valid $or operator with mixed operators', function() {
@@ -293,7 +293,7 @@ describe('$match tests using mongoToSQL', function() {
         }}
         ]);
         
-        assert.equal(result, "SELECT * FROM inventory WHERE ( `qty` < 2 OR `status` = 'D' )");
+        assert.equal(result, "SELECT * FROM `inventory` WHERE ( `qty` < 2 OR `status` = 'D' )");
     });
     
     it('should succeed because of a valid $or operator with mixed operators and an implicit AND', function() {
@@ -313,7 +313,7 @@ describe('$match tests using mongoToSQL', function() {
         }}
         ]);
         
-        assert.equal(result, "SELECT * FROM inventory WHERE `type` = 3 AND ( `qty` < 2 OR `status` = 'D' )");
+        assert.equal(result, "SELECT * FROM `inventory` WHERE `type` = 3 AND ( `qty` < 2 OR `status` = 'D' )");
     });
     
     it('should succeed because of a valid $and operator', function() {
@@ -330,7 +330,7 @@ describe('$match tests using mongoToSQL', function() {
         }}
         ]);
         
-        assert.equal(result, "SELECT * FROM inventory WHERE ( `qty` = 2 AND `status` = 'D' )");
+        assert.equal(result, "SELECT * FROM `inventory` WHERE ( `qty` = 2 AND `status` = 'D' )");
     });
     
     it('should succeed because of a valid $and operator with mixed operators', function() {
@@ -349,7 +349,7 @@ describe('$match tests using mongoToSQL', function() {
         }}
         ]);
         
-        assert.equal(result, "SELECT * FROM inventory WHERE ( `qty` < 2 AND `status` = 'D' )");
+        assert.equal(result, "SELECT * FROM `inventory` WHERE ( `qty` < 2 AND `status` = 'D' )");
     });
     
     // NOTE: Since $or and $and use the same function internally, to test 
@@ -384,7 +384,7 @@ describe('$match tests using $match directly', function() {
             }
         }, resource);
         
-        assert.equal(result.query, "SELECT * FROM inventory WHERE `status` in ('A','D')");
+        assert.equal(result.query, "SELECT * FROM `inventory` WHERE `status` in ('A','D')");
     });
 
     it('should return the partial query since we have specified headless mode', function() {
@@ -404,6 +404,6 @@ describe('$match tests using $match directly', function() {
             }
         }, resource, {headless: false});
         
-        assert.equal(result.query, "SELECT * FROM inventory WHERE `status` in ('A','D')");
+        assert.equal(result.query, "SELECT * FROM `inventory` WHERE `status` in ('A','D')");
     });
 })

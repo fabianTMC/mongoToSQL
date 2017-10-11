@@ -63,7 +63,7 @@ describe('$group tests', function() {
             }}
         ]);
 
-        assert.equal(result, "SELECT COUNT(*) as `count`, `user_id` as `user_id`, `age` as `age` FROM `loginstore` GROUP BY 'user_id'");
+        assert.equal(result, "SELECT 'user_id' as `_id`, COUNT(*) as `count`, `user_id` as `user_id`, `age` as `age` FROM `loginstore` GROUP BY 'user_id'");
     })
 
     it('should run a grouping on two levels by a string because of the missing $ in _id', function() {
@@ -84,7 +84,7 @@ describe('$group tests', function() {
             }}
         ]);
 
-        assert.equal(result, "SELECT COUNT(*) as `count` FROM (SELECT COUNT(*) as `count`, `user_id` as `user_id`, `age` as `age` FROM `loginstore` GROUP BY 'user_id') t0 GROUP BY 'age'");
+        assert.equal(result, "SELECT 'age' as `_id`, COUNT(*) as `count` FROM (SELECT 'user_id' as `_id`, COUNT(*) as `count`, `user_id` as `user_id`, `age` as `age` FROM `loginstore` GROUP BY 'user_id') t0 GROUP BY 'age'");
     })
 
 
@@ -100,7 +100,7 @@ describe('$group tests', function() {
             }}
         ]);
 
-        assert.equal(result, "SELECT COUNT(*) as `count`, `user_id` as `user_id`, `age` as `age` FROM `loginstore` GROUP BY `user_id`");
+        assert.equal(result, "SELECT `user_id` as `_id`, COUNT(*) as `count`, `user_id` as `user_id`, `age` as `age` FROM `loginstore` GROUP BY `user_id`");
     })
 
     it('should run a grouping on two levels', function() {
@@ -121,7 +121,7 @@ describe('$group tests', function() {
             }}
         ]);
 
-        assert.equal(result, "SELECT COUNT(*) as `count` FROM (SELECT COUNT(*) as `count`, `user_id` as `user_id`, `age` as `age` FROM `loginstore` GROUP BY `user_id`) t0 GROUP BY `age`");
+        assert.equal(result, "SELECT `age` as `_id`, COUNT(*) as `count` FROM (SELECT `user_id` as `_id`, COUNT(*) as `count`, `user_id` as `user_id`, `age` as `age` FROM `loginstore` GROUP BY `user_id`) t0 GROUP BY `age`");
     })
 
     it('should add a string as a field because of the missing $ (one level)', function() {
@@ -136,7 +136,7 @@ describe('$group tests', function() {
             }}
         ]);
 
-        assert.equal(result, "SELECT COUNT(*) as `count`, 'user_id' as `user_id`, `age` as `age` FROM `loginstore` GROUP BY `user_id`");
+        assert.equal(result, "SELECT `user_id` as `_id`, COUNT(*) as `count`, 'user_id' as `user_id`, `age` as `age` FROM `loginstore` GROUP BY `user_id`");
     })
 
     it('should add a string as a field because of the missing $ (two level)', function() {
@@ -158,7 +158,7 @@ describe('$group tests', function() {
             }}
         ]);
 
-        assert.equal(result, "SELECT COUNT(*) as `count`, 'age' as `age` FROM (SELECT COUNT(*) as `count`, 'user_id' as `user_id`, `age` as `age` FROM `loginstore` GROUP BY `user_id`) t0 GROUP BY `age`");
+        assert.equal(result, "SELECT `age` as `_id`, COUNT(*) as `count`, 'age' as `age` FROM (SELECT `user_id` as `_id`, COUNT(*) as `count`, 'user_id' as `user_id`, `age` as `age` FROM `loginstore` GROUP BY `user_id`) t0 GROUP BY `age`");
     })
 
     it('should count all the verified fields', function() {
@@ -173,7 +173,7 @@ describe('$group tests', function() {
             }}
         ]);
 
-        assert.equal(result, "SELECT COUNT(verified) as `count`, `user_id` as `user_id`, `age` as `age` FROM `loginstore` GROUP BY `user_id`");
+        assert.equal(result, "SELECT `user_id` as `_id`, COUNT(verified) as `count`, `user_id` as `user_id`, `age` as `age` FROM `loginstore` GROUP BY `user_id`");
     })
 
     it('should fail to count all the verified fields becasuse of the missing $', function() {
@@ -203,7 +203,7 @@ describe('$group tests', function() {
             }}
         ]);
 
-        assert.equal(result, "SELECT COUNT(*) * 2 as `count`, `user_id` as `user_id`, `age` as `age` FROM `loginstore` GROUP BY `user_id`");
+        assert.equal(result, "SELECT `user_id` as `_id`, COUNT(*) * 2 as `count`, `user_id` as `user_id`, `age` as `age` FROM `loginstore` GROUP BY `user_id`");
     })
 
     it('should run a grouping on one level despite the $sum field not being in the field list', function() {
@@ -218,6 +218,6 @@ describe('$group tests', function() {
             }}
         ]);
 
-        assert.equal(result, "SELECT COUNT(custom) as `count`, `user_id` as `user_id`, `age` as `age` FROM `loginstore` GROUP BY `user_id`");
+        assert.equal(result, "SELECT `user_id` as `_id`, COUNT(custom) as `count`, `user_id` as `user_id`, `age` as `age` FROM `loginstore` GROUP BY `user_id`");
     })
 });
