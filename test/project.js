@@ -2,7 +2,6 @@ var mongoToSQL = require("../lib/index");
 var assert = require('chai').assert;
 
 let resource = "loginstore";
-let fields = ["verified", "user_id", "count", "age"];
 
 describe('$project tests', function () {
     it('should throw an error as the projection is empty', function () {
@@ -106,5 +105,68 @@ describe('$project tests', function () {
         ]);
 
         assert.equal(result, "SELECT `custom` as `custom` FROM `loginstore`");
+    });
+
+    it('should concat the passed fields', function () {
+        let result = mongoToSQL.convert(resource, [
+            {
+                "$project": {
+                    "concat": {
+                        "$concat": [ "$age", " - ", "$user_id" ],
+                    }
+                }
+            }
+        ]);
+
+        assert.equal(result, "SELECT CONCAT(`age`, ' - ', `user_id`) as `concat` FROM `loginstore`");
+    });
+
+    it('should convert the given field to lowercase', function () {
+        let result = mongoToSQL.convert(resource, [
+            {
+                "$project": {
+                    "lower": {
+                        "$toLower": "$email",
+                    }
+                }
+            }
+        ]);
+
+        assert.equal(result, "SELECT LOWER(`email`) as `lower` FROM `loginstore`");
+    });
+
+    it('should convert the given field to uppercase', function () {
+        let result = mongoToSQL.convert(resource, [
+            {
+                "$project": {
+                    "upper": {
+                        "$toUpper": "$email",
+                    }
+                }
+            }
+        ]);
+
+        assert.equal(result, "SELECT UPPER(`email`) as `upper` FROM `loginstore`");
+    });
+
+    it('should convert multiple operators in the given projection', function () {
+        let result = mongoToSQL.convert(resource, [
+            {
+                "$project": {
+                    "verified": 1,
+                    "concat": {
+                        "$concat": [ "$age", " - ", "$user_id" ],
+                    },
+                    "lower": {
+                        "$toLower": "$email",
+                    },
+                    "upper": {
+                        "$toUpper": "$email",
+                    }
+                }
+            }
+        ]);
+
+        assert.equal(result, "SELECT `verified`, CONCAT(`age`, ' - ', `user_id`) as `concat`, LOWER(`email`) as `lower`, UPPER(`email`) as `upper` FROM `loginstore`");
     });
 });
