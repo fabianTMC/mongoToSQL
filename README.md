@@ -1,10 +1,13 @@
 # MongoToSQL - Convert MongoDB aggregation pipelines to their SQL equivalent
-----
+
+
+# Notes
+* Some pipelines throw errors so it would be safer to wrap all library function call in a try..catch block.
 
 ## Supported pipelines
 ----
 * $group
-* $project
+* [$project](docs/project.md)
 * $match
 * $lookup
 
