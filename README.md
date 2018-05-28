@@ -3,6 +3,7 @@
 
 # Notes
 * Some pipelines throw errors so it would be safer to wrap all library function call in a try..catch block.
+* When a `$match` stage is immediately followed by a `$project` stage, an optimization will kick in where the headless output of the `$project` will be appended with the headless output of the `$match` to avoid an unnecessary subquery. 
 
 ## Supported pipelines
 ----
