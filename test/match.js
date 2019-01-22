@@ -377,6 +377,25 @@ describe('$match tests using mongoToSQL', function() {
 
 // NOTE: We are only testing options below
 describe('$match tests using $match directly', function() {
+    it('should return the entire query', function() {
+        let result = mongoToSQL.$match({
+            status: "hello",
+            area: "world"
+        }, resource);
+        
+        assert.equal(result.query, "SELECT * FROM `inventory` WHERE `status` = 'hello' AND `area` = 'world'");
+    });
+
+    it('should return the entire query without the head', function() {
+        let result = mongoToSQL.$match({
+            status: "hello",
+            area: "world"
+        }, resource, {headless: true});
+        
+        assert.equal(result.query, "WHERE `status` = 'hello' AND `area` = 'world'");
+    });
+
+
     it('should return the entire query since we have specified no options', function() {
         let result = mongoToSQL.$match({
             status: {
