@@ -14,8 +14,8 @@
 
 ## Supported $group operators
 ----
-* $sum
-    * NOTE: $sum currently does not support nested operators or multiple expressions through an array.
+* $count
+    * NOTE: $count currently does not support nested operators or multiple expressions through an array.
 
 ## $lookup
 ----
@@ -84,14 +84,14 @@ SELECT * FROM inventory WHERE status = 'D' AND qty = 2
 -------
 For a complete understanding and set of examples for how to use this library, please refer to the **tests** folder.
 
-Using $sum:
+Using $count:
 ```
 let collectionName = "loginstore";
 
 mongoToSQL.convert(collectionName, [
     {"$group": {
         count: {
-            "$sum": 1
+            "$count": 1
         },
         age: "$age"
     }}

@@ -19,7 +19,7 @@ describe('$group tests', function() {
         let result = mongoToSQL.convert(resource, [
             {"$group": {
                 count: {
-                    "$sum": 1
+                    "$count": 1
                 },
                 user_id: "$user_id",
                 age: "$age"
@@ -34,14 +34,14 @@ describe('$group tests', function() {
             {"$group": {
                 _id: "$user_id", // GROUP BY
                 count: {
-                    "$sum": 1
+                    "$count": 1
                 },
                 user_id: "$user_id",
                 age: "$age"
             }},
             {"$group": {
                 count: {
-                    "$sum": 1
+                    "$count": 1
                 },
                 user_id: "$user_id",
                 age: "$age"
@@ -56,7 +56,7 @@ describe('$group tests', function() {
             {"$group": {
                 _id: "user_id", // GROUP BY
                 count: {
-                    "$sum": 1
+                    "$count": 1
                 },
                 user_id: "$user_id",
                 age: "$age"
@@ -71,7 +71,7 @@ describe('$group tests', function() {
             {"$group": {
                 _id: "user_id", // GROUP BY
                 count: {
-                    "$sum": 1
+                    "$count": 1
                 },
                 user_id: "$user_id",
                 age: "$age"
@@ -79,7 +79,7 @@ describe('$group tests', function() {
             {"$group": {
                 _id: "age", // GROUP BY
                 count: {
-                    "$sum": 1
+                    "$count": 1
                 },
             }}
         ]);
@@ -93,7 +93,7 @@ describe('$group tests', function() {
             {"$group": {
                 _id: "$user_id", // GROUP BY
                 count: {
-                    "$sum": 1
+                    "$count": 1
                 },
                 user_id: "$user_id",
                 age: "$age"
@@ -108,7 +108,7 @@ describe('$group tests', function() {
             {"$group": {
                 _id: "$user_id", // GROUP BY
                 count: {
-                    "$sum": 1
+                    "$count": 1
                 },
                 user_id: "$user_id",
                 age: "$age"
@@ -116,7 +116,7 @@ describe('$group tests', function() {
             {"$group": {
                 _id: "$age", // GROUP BY
                 count: {
-                    "$sum": 1
+                    "$count": 1
                 },
             }}
         ]);
@@ -129,7 +129,7 @@ describe('$group tests', function() {
             {"$group": {
                 _id: "$user_id", // GROUP BY
                 count: {
-                    "$sum": 1
+                    "$count": 1
                 },
                 user_id: "user_id",
                 age: "$age"
@@ -144,7 +144,7 @@ describe('$group tests', function() {
             {"$group": {
                 _id: "$user_id", // GROUP BY
                 count: {
-                    "$sum": 1
+                    "$count": 1
                 },
                 user_id: "user_id",
                 age: "$age"
@@ -152,7 +152,7 @@ describe('$group tests', function() {
             {"$group": {
                 _id: "$age", // GROUP BY
                 count: {
-                    "$sum": 1
+                    "$count": 1
                 },
                 age: "age"
             }}
@@ -166,7 +166,7 @@ describe('$group tests', function() {
             {"$group": {
                 _id: "$user_id", // GROUP BY
                 count: {
-                    "$sum": "$verified"
+                    "$count": "$verified"
                 },
                 user_id: "$user_id",
                 age: "$age"
@@ -181,7 +181,7 @@ describe('$group tests', function() {
             {"$group": {
                 _id: "$user_id", // GROUP BY
                 count: {
-                    "$sum": "verified"
+                    "$count": "verified"
                 },
                 user_id: "$user_id",
                 age: "$age"
@@ -196,7 +196,7 @@ describe('$group tests', function() {
             {"$group": {
                 _id: "$user_id", // GROUP BY
                 count: {
-                    "$sum": 2
+                    "$count": 2
                 },
                 user_id: "$user_id",
                 age: "$age"
@@ -206,12 +206,12 @@ describe('$group tests', function() {
         assert.equal(result, "SELECT `user_id` as `_id`, COUNT(*) * 2 as `count`, `user_id` as `user_id`, `age` as `age` FROM `loginstore` GROUP BY `user_id`");
     })
 
-    it('should run a grouping on one level despite the $sum field not being in the field list', function() {
+    it('should run a grouping on one level despite the $count field not being in the field list', function() {
         let result = mongoToSQL.convert(resource, [
             {"$group": {
                 _id: "$user_id", // GROUP BY
                 count: {
-                    "$sum": "$custom"
+                    "$count": "$custom"
                 },
                 user_id: "$user_id",
                 age: "$age"

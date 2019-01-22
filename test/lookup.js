@@ -189,7 +189,7 @@ describe('$lookup tests', function() {
                 "$group": {
                     _id: "$districtName",
                     count: {
-                        "$sum": 1
+                        "$count": 1
                     }, 
                 }
             }
