@@ -173,7 +173,7 @@ describe('$group tests', function() {
             }}
         ]);
 
-        assert.equal(result, "SELECT `user_id` as `_id`, COUNT(verified) as `count`, `user_id` as `user_id`, `age` as `age` FROM `loginstore` GROUP BY `user_id`");
+        assert.equal(result, "SELECT `user_id` as `_id`, COUNT(`verified`) as `count`, `user_id` as `user_id`, `age` as `age` FROM `loginstore` GROUP BY `user_id`");
     })
 
     it('should fail to count all the verified fields becasuse of the missing $', function() {
@@ -218,6 +218,187 @@ describe('$group tests', function() {
             }}
         ]);
 
-        assert.equal(result, "SELECT `user_id` as `_id`, COUNT(custom) as `count`, `user_id` as `user_id`, `age` as `age` FROM `loginstore` GROUP BY `user_id`");
+        assert.equal(result, "SELECT `user_id` as `_id`, COUNT(`custom`) as `count`, `user_id` as `user_id`, `age` as `age` FROM `loginstore` GROUP BY `user_id`");
+    })
+
+    it('should SUM one field', function() {
+        let result = mongoToSQL.convert(resource, [
+            {"$group": {
+                _id: "$user_id", // GROUP BY
+                sum: {
+                    "$sum": "$a"
+                }
+            }}
+        ]);
+
+        assert.equal(result, "SELECT `user_id` as `_id`, SUM(`a`) as `sum` FROM `loginstore` GROUP BY `user_id`");
+
+    })
+
+    it('should not SUM a non $ string', function() {
+        let result = mongoToSQL.convert(resource, [
+            {"$group": {
+                _id: "$user_id", // GROUP BY
+                sum: {
+                    "$sum": "a"
+                }
+            }}
+        ]);
+
+        assert.equal(result, mongoToSQL.Errors.INVALID_FIELD('a'));
+    })
+
+    it('should SUM a number', function() {
+        let result = mongoToSQL.convert(resource, [
+            {"$group": {
+                _id: "$user_id", // GROUP BY
+                sum: {
+                    "$sum": 12
+                }
+            }}
+        ]);
+
+        assert.equal(result, "SELECT `user_id` as `_id`, SUM(12) as `sum` FROM `loginstore` GROUP BY `user_id`");
+
+    })
+
+    it('should SUM a number of fields', function() {
+        let result = mongoToSQL.convert(resource, [
+            {"$group": {
+                _id: "$user_id", // GROUP BY
+                sum: {
+                    "$sum": ["$a", "*", "$b"]
+                }
+            }}
+        ]);
+
+        assert.equal(result, "SELECT `user_id` as `_id`, SUM(`a` * `b`) as `sum` FROM `loginstore` GROUP BY `user_id`");
+
+    });
+
+    it('should not SUM a number of fields as one is a non $ string', function() {
+        let result = mongoToSQL.convert(resource, [
+            {"$group": {
+                _id: "$user_id", // GROUP BY
+                sum: {
+                    "$sum": ["$a", "*", "$b", "/", "c"]
+                }
+            }}
+        ]);
+
+        assert.equal(result, mongoToSQL.Errors.UNSUPPORTED_ACCUMULATOR_EXPRESSION('c'));
+
+    });
+
+    it('should not SUM a number of fields as there is a missing math operator in the middle', function() {
+        let result = mongoToSQL.convert(resource, [
+            {"$group": {
+                _id: "$user_id", // GROUP BY
+                sum: {
+                    "$sum": ["$a", "$b"]
+                }
+            }}
+        ]);
+
+        assert.equal(result, mongoToSQL.Errors.INVALID_SUM_OPERATOR);
+
+    });
+
+    it('should not SUM a number of fields as there is are missing operands at % 1', function() {
+        let result = mongoToSQL.convert(resource, [
+            {"$group": {
+                _id: "$user_id", // GROUP BY
+                sum: {
+                    "$sum": ["*", "$a", "$b"]
+                }
+            }}
+        ]);
+
+        assert.equal(result, mongoToSQL.Errors.INVALID_SUM_OPERATOR);
+
+    });
+
+    it('should not SUM a number of fields as there is are missing operators at the end', function() {
+        let result = mongoToSQL.convert(resource, [
+            {"$group": {
+                _id: "$user_id", // GROUP BY
+                sum: {
+                    "$sum": ["$a", "*", "$b", "/"]
+                }
+            }}
+        ]);
+
+        assert.equal(result, mongoToSQL.Errors.INVALID_SUM_OPERATOR);
+
+    });
+
+    it('should SUM a number of fields and a number', function() {
+        let result = mongoToSQL.convert(resource, [
+            {"$group": {
+                _id: "$user_id", // GROUP BY
+                sum: {
+                    "$sum": ["$a", "*", "$b", "/", 3]
+                }
+            }}
+        ]);
+
+        assert.equal(result, "SELECT `user_id` as `_id`, SUM(`a` * `b` / 3) as `sum` FROM `loginstore` GROUP BY `user_id`");
+
+    })
+
+    it('should SUM a number of numbers separated by a *', function() {
+        let result = mongoToSQL.convert(resource, [
+            {"$group": {
+                _id: "$user_id", // GROUP BY
+                sum: {
+                    "$sum": [3, "*", 5]
+                }
+            }}
+        ]);
+
+        assert.equal(result, "SELECT `user_id` as `_id`, SUM(3 * 5) as `sum` FROM `loginstore` GROUP BY `user_id`");
+
+    })
+
+    it('should SUM a number of numbers separated by a /', function() {
+        let result = mongoToSQL.convert(resource, [
+            {"$group": {
+                _id: "$user_id", // GROUP BY
+                sum: {
+                    "$sum": [3, "/", 5]
+                }
+            }}
+        ]);
+
+        assert.equal(result, "SELECT `user_id` as `_id`, SUM(3 / 5) as `sum` FROM `loginstore` GROUP BY `user_id`");
+
+    })
+
+    it('should SUM a number of numbers separated by a +', function() {
+        let result = mongoToSQL.convert(resource, [
+            {"$group": {
+                _id: "$user_id", // GROUP BY
+                sum: {
+                    "$sum": [3, "+", 5]
+                }
+            }}
+        ]);
+
+        assert.equal(result, "SELECT `user_id` as `_id`, SUM(3 + 5) as `sum` FROM `loginstore` GROUP BY `user_id`");
+
+    })
+
+    it('should SUM a number of numbers separated by a -', function() {
+        let result = mongoToSQL.convert(resource, [
+            {"$group": {
+                _id: "$user_id", // GROUP BY
+                sum: {
+                    "$sum": [3, "-", 5]
+                }
+            }}
+        ]);
+
+        assert.equal(result, "SELECT `user_id` as `_id`, SUM(3 - 5) as `sum` FROM `loginstore` GROUP BY `user_id`");
+
     })
 });
