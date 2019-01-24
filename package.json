@@ -4,7 +4,7 @@
     "description": "",
     "main": "lib/index.js",
     "scripts": {
-        "test": "mocha"
+        "test": "nyc mocha"
     },
     "author": "Fabian Enos <fabian.enos@gmail.com>",
     "license": "MIT",
@@ -15,7 +15,8 @@
     "devDependencies": {
         "chai": "^3.5.0",
         "eslint": "^3.19.0",
-        "mocha": "^3.3.0"
+        "mocha": "^3.3.0",
+        "nyc": "^13.1.0"
     },
     "dependencies": {
         "mysql": "^2.13.0"

@@ -1,3 +1,4 @@
 node_modules/
 test/manual.js
 test/output
+.nyc_output/
