@@ -254,25 +254,6 @@ describe('$lookup tests', function() {
         assert.equal(result.query, "SELECT `users`.`state_id`, `states`.`name` as `stateName`, 'dummy' as `dummy`, true as `boolean`, 10.5 as `number` FROM `users` RIGHT OUTER JOIN `states` ON `states`.`id` = `users`.`state_id`");
     });
 
-    it('should run a full outer join by configuration', function() {
-        let result = mongoToSQL.$lookup({
-            from: "states",
-            foreignField: "id",
-            localField: "state_id",
-            joinType: "full",
-            as: {
-                "state_id": 1,
-                "stateName": "$name",
-                "dummy": "dummy",
-                "boolean": true,
-                "number": 10.5
-            }
-        }, "users");
-
-        assert.equal(result.success, true);
-        assert.equal(result.query, "SELECT `users`.`state_id`, `states`.`name` as `stateName`, 'dummy' as `dummy`, true as `boolean`, 10.5 as `number` FROM `users` FULL OUTER JOIN `states` ON `states`.`id` = `users`.`state_id`");
-    });
-
     it('should run an inner join by configuration', function() {
         let result = mongoToSQL.$lookup({
             from: "states",
