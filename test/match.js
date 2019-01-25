@@ -11,7 +11,8 @@ describe('$match tests using mongoToSQL', function() {
         }}
         ]);
         
-        assert.equal(result, mongoToSQL.Errors.EMPTY_MATCHING);
+        assert.equal(result.success, false);
+        assert.equal(result.error, mongoToSQL.Errors.EMPTY_MATCHING);
     });
     
     it('should succeed because of the one match value', function() {
@@ -135,7 +136,8 @@ describe('$match tests using mongoToSQL', function() {
         }}
         ]);
         
-        assert.equal(result, mongoToSQL.Errors.IN_NOT_AN_ARRAY);
+        assert.equal(result.success, false);
+        assert.equal(result.error, mongoToSQL.Errors.IN_NOT_AN_ARRAY);
     });
     
     it('should fail because of an invalid $in operator', function() {
@@ -147,7 +149,8 @@ describe('$match tests using mongoToSQL', function() {
         }}
         ]);
         
-        assert.equal(result, mongoToSQL.Errors.IN_NOT_AN_ARRAY);
+        assert.equal(result.success, false);
+        assert.equal(result.error, mongoToSQL.Errors.IN_NOT_AN_ARRAY);
     });
     
     it('should fail because of an invalid $in operator', function() {
@@ -159,7 +162,8 @@ describe('$match tests using mongoToSQL', function() {
         }}
         ]);
         
-        assert.equal(result, mongoToSQL.Errors.IN_NOT_AN_ARRAY);
+        assert.equal(result.success, false);
+        assert.equal(result.error, mongoToSQL.Errors.IN_NOT_AN_ARRAY);
     });
     
     it('should succeed because of a valid $lt operator', function() {
@@ -245,7 +249,8 @@ describe('$match tests using mongoToSQL', function() {
         }}
         ]);
         
-        assert.equal(result, mongoToSQL.Errors.NOT_A_NUMBER);
+        assert.equal(result.success, false);
+        assert.equal(result.error, mongoToSQL.Errors.NOT_A_NUMBER);
     });
     
     it('should fail because of a invalid $lt operator', function() {
@@ -257,7 +262,8 @@ describe('$match tests using mongoToSQL', function() {
         }}
         ]);
         
-        assert.equal(result, mongoToSQL.Errors.NOT_A_NUMBER);
+        assert.equal(result.success, false);
+        assert.equal(result.error, mongoToSQL.Errors.NOT_A_NUMBER);
     });
     
     it('should succeed because of a valid $or operator', function() {
@@ -361,7 +367,8 @@ describe('$match tests using mongoToSQL', function() {
         }}
         ]);
         
-        assert.equal(result, mongoToSQL.Errors.OR_NOT_AN_ARRAY);
+        assert.equal(result.success, false);
+        assert.equal(result.error, mongoToSQL.Errors.OR_NOT_AN_ARRAY);
     });
     
     it('should fail because of an invalid $or operator', function() {
@@ -371,7 +378,8 @@ describe('$match tests using mongoToSQL', function() {
         }}
         ]);
         
-        assert.equal(result, mongoToSQL.Errors.OR_NOT_AN_ARRAY);
+        assert.equal(result.success, false);
+        assert.equal(result.error, mongoToSQL.Errors.OR_NOT_AN_ARRAY);
     });
 });
 

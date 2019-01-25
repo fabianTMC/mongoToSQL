@@ -11,7 +11,8 @@ describe('$project tests', function () {
             }
         ]);
 
-        assert.equal(result, mongoToSQL.Errors.EMPTY_PROJECTION);
+        assert.equal(result.success, false);
+        assert.equal(result.error, mongoToSQL.Errors.EMPTY_PROJECTION);
     })
 
     it('throw an error as both inclusion and exclusion were run', function () {
@@ -24,7 +25,8 @@ describe('$project tests', function () {
             }
         ]);
 
-        assert.equal(result, mongoToSQL.Errors.INCLUSION_AND_EXCLUSION);
+        assert.equal(result.success, false);
+        assert.equal(result.error, mongoToSQL.Errors.INCLUSION_AND_EXCLUSION);
     })
 
     it('should select only the user_id', function () {

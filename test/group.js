@@ -12,7 +12,8 @@ describe('$group tests', function() {
             }}
         ]);
 
-        assert.equal(result, mongoToSQL.Errors.EMPTY_GROUPING);
+        assert.equal(result.success, false);
+        assert.equal(result.error, mongoToSQL.Errors.EMPTY_GROUPING);
     })
 
     it('should fail because of the missing _id field', function() {
@@ -26,7 +27,8 @@ describe('$group tests', function() {
             }}
         ]);
 
-        assert.equal(result, mongoToSQL.Errors.MISSING_ID);
+        assert.equal(result.success, false);
+        assert.equal(result.error, mongoToSQL.Errors.MISSING_ID);
     })
 
     it('should fail because of the missing _id field in the second stage', function() {
@@ -48,7 +50,8 @@ describe('$group tests', function() {
             }}
         ]);
 
-        assert.equal(result, mongoToSQL.Errors.MISSING_ID);
+        assert.equal(result.success, false);
+        assert.equal(result.error, mongoToSQL.Errors.MISSING_ID);
     })
 
     it('should run a grouping by a string because of the misssing $ in _id', function() {
@@ -188,7 +191,8 @@ describe('$group tests', function() {
             }}
         ]);
 
-        assert.equal(result, mongoToSQL.Errors.INVALID_FIELD('verified'));
+        assert.equal(result.success, false);
+        assert.equal(result.error, mongoToSQL.Errors.INVALID_FIELD('verified'));
     })
 
     it('should count all fields multiplied by a factor of 2', function() {
@@ -245,7 +249,8 @@ describe('$group tests', function() {
             }}
         ]);
 
-        assert.equal(result, mongoToSQL.Errors.INVALID_FIELD('a'));
+        assert.equal(result.success, false);
+        assert.equal(result.error, mongoToSQL.Errors.INVALID_FIELD('a'));
     })
 
     it('should SUM a number', function() {
@@ -286,7 +291,8 @@ describe('$group tests', function() {
             }}
         ]);
 
-        assert.equal(result, mongoToSQL.Errors.UNSUPPORTED_ACCUMULATOR_EXPRESSION('c'));
+        assert.equal(result.success, false);
+        assert.equal(result.error, mongoToSQL.Errors.UNSUPPORTED_ACCUMULATOR_EXPRESSION('c'));
 
     });
 
@@ -300,7 +306,8 @@ describe('$group tests', function() {
             }}
         ]);
 
-        assert.equal(result, mongoToSQL.Errors.INVALID_SUM_OPERATOR);
+        assert.equal(result.success, false);
+        assert.equal(result.error, mongoToSQL.Errors.INVALID_SUM_OPERATOR);
 
     });
 
@@ -314,7 +321,8 @@ describe('$group tests', function() {
             }}
         ]);
 
-        assert.equal(result, mongoToSQL.Errors.INVALID_SUM_OPERATOR);
+        assert.equal(result.success, false);
+        assert.equal(result.error, mongoToSQL.Errors.INVALID_SUM_OPERATOR);
 
     });
 
@@ -328,7 +336,8 @@ describe('$group tests', function() {
             }}
         ]);
 
-        assert.equal(result, mongoToSQL.Errors.INVALID_SUM_OPERATOR);
+        assert.equal(result.success, false);
+        assert.equal(result.error, mongoToSQL.Errors.INVALID_SUM_OPERATOR);
 
     });
 
