@@ -171,4 +171,65 @@ describe('$project tests', function () {
 
         assert.equal(result, "SELECT `verified`, CONCAT(`age`, ' - ', `user_id`) as `concat`, LOWER(`email`) as `lower`, UPPER(`email`) as `upper` FROM `loginstore`");
     });
+
+    it('should run the projection with a sub query', function () {
+        let result = mongoToSQL.convert(resource, [
+            {
+                "$project": {
+                    "sub": {
+                        "$query": {
+                            "resource": "loginstore",
+                            "pipeline": [
+                                {
+                                    "$match": {
+                                        "ip": "12345"
+                                    }
+                                },
+                                {
+                                    "$project": {
+                                        "ip": 1
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                }
+            }
+        ]);
+
+        assert.equal(result, "SELECT (SELECT `ip` FROM `loginstore` WHERE `ip` = '12345') as `sub` FROM `loginstore`");
+    });
+
+    it('should return a complex subquery', function () {
+        let result = mongoToSQL.convert(resource, [
+            {
+                "$project": {
+                    "sub": {
+                        "$query": {
+                            "resource": "users",
+                            "pipeline": [
+                                {
+                                    "$lookup": {
+                                        from: "states",
+                                        foreignField: "id",
+                                        localField: "state_id",
+                                        joinType: null,
+                                        as: {
+                                            "state_id": 1,
+                                            "stateName": "$name",
+                                            "dummy": "dummy",
+                                            "boolean": true,
+                                            "number": 10.5
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                }
+            }
+        ]);
+
+        assert.equal(result, "SELECT (SELECT `users`.`state_id`, `states`.`name` as `stateName`, 'dummy' as `dummy`, true as `boolean`, 10.5 as `number` FROM `users` LEFT OUTER JOIN `states` ON `states`.`id` = `users`.`state_id`) as `sub` FROM `loginstore`");
+    });
 });
