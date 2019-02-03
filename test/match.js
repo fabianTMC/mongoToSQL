@@ -127,7 +127,7 @@ describe('$match tests using mongoToSQL', function() {
     
     // NOTE: Since $in and $ini use the same function internally, to test 
     // failure for one is to test failure for the other
-    it('should fail because of an invalid $in operator', function() {
+    it('should fail because of an invalid $in operator 11', function() {
         let result = mongoToSQL.convert(resource, [
         {"$match": {
             status: {
@@ -140,7 +140,7 @@ describe('$match tests using mongoToSQL', function() {
         assert.equal(result.error, mongoToSQL.Errors.IN_NOT_AN_ARRAY);
     });
     
-    it('should fail because of an invalid $in operator', function() {
+    it('should fail because of an invalid $in operator 2', function() {
         let result = mongoToSQL.convert(resource, [
         {"$match": {
             status: {
@@ -153,7 +153,7 @@ describe('$match tests using mongoToSQL', function() {
         assert.equal(result.error, mongoToSQL.Errors.IN_NOT_AN_ARRAY);
     });
     
-    it('should fail because of an invalid $in operator', function() {
+    it('should fail because of an invalid $in operator 3', function() {
         let result = mongoToSQL.convert(resource, [
         {"$match": {
             status: {
@@ -432,5 +432,83 @@ describe('$match tests using $match directly', function() {
         }, resource, {headless: false});
         
         assert.equal(result.query, "SELECT * FROM `inventory` WHERE `status` in ('A','D')");
+    });
+
+    it('should return a subquery match', function() {
+        let result = mongoToSQL.convert(resource, [{
+            $match: {
+                status: {
+                    $in: {
+                        $query: {
+                            resource: "inventory",
+                            pipeline: [
+                                {
+                                    $match: {
+                                        "id": {
+                                            $gt: 10
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        }]);
+        
+        assert.equal(result, "SELECT * FROM `inventory` WHERE `status` in (SELECT * FROM `inventory` WHERE `id` > 10)");
+    });
+
+    it('should return a subquery project', function() {
+        let result = mongoToSQL.convert(resource, [{
+            $match: {
+                status: {
+                    $in: {
+                        $query: {
+                            resource: "inventory",
+                            pipeline: [
+                                {
+                                    $project: {
+                                        "id": 1
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        }]);
+        
+        assert.equal(result, "SELECT * FROM `inventory` WHERE `status` in (SELECT `id` FROM `inventory`)");
+    });
+
+    it('should return a subquery match with project', function() {
+        let result = mongoToSQL.convert(resource, [{
+            $match: {
+                status: {
+                    $in: {
+                        $query: {
+                            resource: "inventory",
+                            pipeline: [
+                                {
+                                    $match: {
+                                        "id": {
+                                            $gt: 10
+                                        }
+                                    }
+                                },
+                                {
+                                    $project: {
+                                        "id": 1
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        }]);
+        
+        assert.equal(result, "SELECT * FROM `inventory` WHERE `status` in (SELECT `id` FROM `inventory` WHERE `id` > 10)");
     });
 })
