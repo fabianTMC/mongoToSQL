@@ -285,4 +285,39 @@ describe('mixed pipeline tests', function() {
         assert.equal(result.success, false);
         assert.equal(result.error, mongoToSQL.Errors.INVALID_ORDER_OBJECT);
     });
+
+    it('$union with $order', function() {
+        let result = mongoToSQL.convert(resource, [
+            {"$union": {
+                pipelines: [
+                    {
+                        pipeline: [
+                            {
+                                $match: {
+                                    user_id: 100,
+                                }
+                            }
+                        ],
+                    },
+                    {
+                        resource: "inventory_old",
+                        pipeline: [
+                            {
+                                $match: {
+                                    user_id: 200,
+                                }
+                            }
+                        ],
+                    }
+                ]
+            }},
+            {
+                $order: [{
+                    id: 1,
+                }]
+            }
+        ]);
+
+        assert.equal(result, "SELECT * FROM (SELECT * FROM `inventory` WHERE `user_id` = 100 UNION SELECT * FROM `inventory_old` WHERE `user_id` = 200) t0 ORDER BY `id` ASC");
+    });
 })
