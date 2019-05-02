@@ -511,4 +511,16 @@ describe('$match tests using $match directly', function() {
         
         assert.equal(result, "SELECT * FROM `inventory` WHERE `status` in (SELECT `id` FROM `inventory` WHERE `id` > 10)");
     });
+
+    it('should match a json array', function() {
+        let result = mongoToSQL.convert(resource, [{
+            $match: {
+                status: ["hello", null]
+            }
+        }]);
+
+        console.log(result);
+        
+        assert.equal(result, "SELECT * FROM `inventory` WHERE JSON_CONTAINS(`status`, '[\"hello\",null]') = 1");
+    });
 })
