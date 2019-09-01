@@ -518,9 +518,17 @@ describe('$match tests using $match directly', function() {
                 status: ["hello", null]
             }
         }]);
-
-        console.log(result);
         
         assert.equal(result, "SELECT * FROM `inventory` WHERE JSON_CONTAINS(`status`, '[\"hello\",null]') = 1");
+    });
+
+    it('should succeed with undefined being replaced by null', function() {
+        let result = mongoToSQL.convert(resource, [
+        {"$match": {
+            status: undefined
+        }}
+        ]);
+        
+        assert.equal(result, "SELECT * FROM `inventory` WHERE `status` IS NULL");
     });
 })
