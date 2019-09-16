@@ -1,10 +1,11 @@
 {
     "name": "mongo-to-sql",
-    "version": "1.4.0",
+    "version": "1.5.0",
     "description": "",
     "main": "lib/index.js",
     "scripts": {
-        "test": "nyc mocha"
+        "test": "mocha",
+        "test-stats": "nyc mocha"
     },
     "author": "Fabian Enos <fabian.enos@gmail.com>",
     "license": "MIT",

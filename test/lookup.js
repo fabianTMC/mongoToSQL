@@ -348,4 +348,117 @@ describe('$lookup tests', function() {
         assert.equal(result.success, true);
         assert.equal(result.query, "SELECT `users`.`state_id`, `states`.`name` as `stateName`, 'dummy' as `dummy`, true as `boolean`, 10.5 as `number` FROM `users` LEFT OUTER JOIN `states` ON `states`.`id` = `users`.`state_id`");
     });
+
+    it('should succeed - one $lookup with two nested $lookup specifications for query without derived tables', function() {
+        let result = mongoToSQL.convert("users",[
+            {
+                "$lookup": [
+                    {
+                        from: "districts",
+                        foreignField: "uuid",
+                        localField: "district_id",
+                        as: {
+                            uuid: 1,
+                            email: 1,
+                            districtName: "$name",
+                        }
+                    },
+                    {
+                        from: "states",
+                        on: "districts",
+                        foreignField: "uuid",
+                        localField: "state_id",
+                        as: {
+                            stateName: "$name"
+                        }
+                    },
+                ]
+            },
+        ]);
+
+        assert.equal(result, "SELECT `users`.`uuid`, `users`.`email`, `districts`.`name` as `districtName`, `states`.`name` as `stateName` FROM `users` INNER JOIN `districts` INNER JOIN `states` ON `districts`.`uuid` = `users`.`district_id` AND `states`.`uuid` = `districts`.`state_id`");
+    });
+
+    it('should succeed - one $lookup with three nested $lookup specifications for query without derived tables', function() {
+        let result = mongoToSQL.convert("users",[
+            {
+                "$lookup": [
+                    {
+                        from: "districts",
+                        foreignField: "uuid",
+                        localField: "district_id",
+                        as: {
+                            uuid: 1,
+                            email: 1,
+                            districtName: "$name",
+                        }
+                    },
+                    {
+                        from: "states",
+                        on: "districts",
+                        foreignField: "uuid",
+                        localField: "state_id",
+                        as: {
+                            stateName: "$name"
+                        }
+                    },
+                    {
+                        from: "countries",
+                        on: "states",
+                        foreignField: "uuid",
+                        localField: "country_id",
+                        as: {
+                            countryName: "$name",
+                        }
+                    },
+                ]
+            },
+        ]);
+
+        assert.equal(result, "SELECT `users`.`uuid`, `users`.`email`, `districts`.`name` as `districtName`, `states`.`name` as `stateName`, `countries`.`name` as `countryName` FROM `users` INNER JOIN `districts` INNER JOIN `states` INNER JOIN `countries` ON `districts`.`uuid` = `users`.`district_id` AND `states`.`uuid` = `districts`.`state_id` AND `countries`.`uuid` = `states`.`country_id`");
+    });
+
+    it('should succeed - one $lookup with three nested $lookup specifications and one $match', function() {
+        let result = mongoToSQL.convert("users",[
+            {
+                "$lookup": [
+                    {
+                        from: "districts",
+                        foreignField: "uuid",
+                        localField: "district_id",
+                        as: {
+                            uuid: 1,
+                            email: 1,
+                            districtName: "$name",
+                        }
+                    },
+                    {
+                        from: "states",
+                        on: "districts",
+                        foreignField: "uuid",
+                        localField: "state_id",
+                        as: {
+                            stateName: "$name"
+                        }
+                    },
+                    {
+                        from: "countries",
+                        on: "states",
+                        foreignField: "uuid",
+                        localField: "country_id",
+                        as: {
+                            countryName: "$name",
+                        }
+                    },
+                ]
+            },
+            {
+                "$match": {
+                    districtName: "The Nilgiris" 
+                }
+            },
+        ]);
+
+        assert.equal(result, "SELECT * FROM (SELECT `users`.`uuid`, `users`.`email`, `districts`.`name` as `districtName`, `states`.`name` as `stateName`, `countries`.`name` as `countryName` FROM `users` INNER JOIN `districts` INNER JOIN `states` INNER JOIN `countries` ON `districts`.`uuid` = `users`.`district_id` AND `states`.`uuid` = `districts`.`state_id` AND `countries`.`uuid` = `states`.`country_id`) t0 WHERE `districtName` = 'The Nilgiris'");
+    });
 });

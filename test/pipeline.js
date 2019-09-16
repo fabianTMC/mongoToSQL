@@ -320,4 +320,156 @@ describe('mixed pipeline tests', function() {
 
         assert.equal(result, "SELECT * FROM (SELECT * FROM `inventory` WHERE `user_id` = 100 UNION SELECT * FROM `inventory_old` WHERE `user_id` = 200) t0 ORDER BY `id` ASC");
     });
+
+    it('optimize sql query based on $match before $project at a later secondary stage with an order and then follow up with a $lookup', function() {
+        let result = mongoToSQL.convert(resource, [
+            {
+                "$match": {
+                    "status": "A",
+                }
+            },
+            {
+                "$match": {
+                    "status": "D",
+                }
+            },
+            {
+                "$match": {
+                    "qty": 2
+                }
+            },
+            {
+                "$project": {
+                    "status": 1
+                }
+            },
+            {
+                "$order": [
+                    {
+                        "status": 1
+                    }
+                ]
+            },
+            {
+                "$lookup": {
+                    from: "districts",
+                    foreignField: "uuid",
+                    localField: "district_id",
+                    as: {
+                        uuid: 1,
+                        email: 1,
+                        districtName: "$name",
+                    }
+                }
+            }
+            
+        ]);
+
+        assert.equal(result, "SELECT `t4`.`uuid`, `t4`.`email`, `districts`.`name` as `districtName` FROM (SELECT `status` FROM (SELECT * FROM (SELECT * FROM `inventory` WHERE `status` = 'A') t0 WHERE `status` = 'D') t1 WHERE `qty` = 2 ORDER BY `status` ASC) t4 LEFT OUTER JOIN `districts` ON `districts`.`uuid` = `t4`.`district_id`");
+    });
+
+    it('should succeed - one $match, $project then $lookup with three nested $lookup specifications', function() {
+        let result = mongoToSQL.convert("users",[
+            {
+                "$match": {
+                    uuid: "abcd" 
+                },
+            },
+            {
+                "$project": {
+                    uuid: 1,
+                    email: 1, 
+                },
+            },
+            {
+                "$lookup": [
+                    {
+                        from: "districts",
+                        foreignField: "uuid",
+                        localField: "district_id",
+                        as: {
+                            uuid: 1,
+                            email: 1,
+                            districtName: "$name",
+                        }
+                    },
+                    {
+                        from: "states",
+                        on: "districts",
+                        foreignField: "uuid",
+                        localField: "state_id",
+                        as: {
+                            stateName: "$name"
+                        }
+                    },
+                    {
+                        from: "countries",
+                        on: "states",
+                        foreignField: "uuid",
+                        localField: "country_id",
+                        as: {
+                            countryName: "$name",
+                        }
+                    },
+                ]
+            },
+        ]);
+
+        assert.equal(result, "SELECT `t1`.`uuid`, `t1`.`email`, `districts`.`name` as `districtName`, `states`.`name` as `stateName`, `countries`.`name` as `countryName` FROM (SELECT `uuid`, `email` FROM `users` WHERE `uuid` = 'abcd') t1 INNER JOIN `districts` INNER JOIN `states` INNER JOIN `countries` ON `districts`.`uuid` = `t1`.`district_id` AND `states`.`uuid` = `districts`.`state_id` AND `countries`.`uuid` = `states`.`country_id`");
+    });
+
+    it('should succeed - one $match, $project then $lookup with three nested $lookup specifications and one $match', function() {
+        let result = mongoToSQL.convert("users",[
+            {
+                "$match": {
+                    uuid: "abcd" 
+                },
+            },
+            {
+                "$project": {
+                    uuid: 1,
+                    email: 1, 
+                },
+            },
+            {
+                "$lookup": [
+                    {
+                        from: "districts",
+                        foreignField: "uuid",
+                        localField: "district_id",
+                        as: {
+                            uuid: 1,
+                            email: 1,
+                            districtName: "$name",
+                        }
+                    },
+                    {
+                        from: "states",
+                        on: "districts",
+                        foreignField: "uuid",
+                        localField: "state_id",
+                        as: {
+                            stateName: "$name"
+                        }
+                    },
+                    {
+                        from: "countries",
+                        on: "states",
+                        foreignField: "uuid",
+                        localField: "country_id",
+                        as: {
+                            countryName: "$name",
+                        }
+                    },
+                ]
+            },
+            {
+                "$match": {
+                    districtName: "The Nilgiris" 
+                }
+            },
+        ]);
+
+        assert.equal(result, "SELECT * FROM (SELECT `t1`.`uuid`, `t1`.`email`, `districts`.`name` as `districtName`, `states`.`name` as `stateName`, `countries`.`name` as `countryName` FROM (SELECT `uuid`, `email` FROM `users` WHERE `uuid` = 'abcd') t1 INNER JOIN `districts` INNER JOIN `states` INNER JOIN `countries` ON `districts`.`uuid` = `t1`.`district_id` AND `states`.`uuid` = `districts`.`state_id` AND `countries`.`uuid` = `states`.`country_id`) t2 WHERE `districtName` = 'The Nilgiris'");
+    });
 })
