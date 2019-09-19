@@ -238,21 +238,20 @@ describe('$match tests using mongoToSQL', function() {
         assert.equal(result, "SELECT * FROM `inventory` WHERE `qty` != 2");
     });
     
-    // NOTE: Since $lt, $gt, $gte, $lte, $eq use the same function internally, to test 
-    // failure for one is to test failure for all
-    it('should fail because of a invalid $lt operator', function() {
+    it('should succeed because of a $lt operator that is assumed to be a date', function() {
         let result = mongoToSQL.convert(resource, [
         {"$match": {
             qty: {
-                $lt: "a"
+                $lt: "2019-02-02"
             }
         }}
         ]);
         
-        assert.equal(result.success, false);
-        assert.equal(result.error, mongoToSQL.Errors.NOT_A_NUMBER);
+        assert.equal(result, "SELECT * FROM `inventory` WHERE `qty` < '2019-02-02'");
     });
     
+    // NOTE: Since $lt, $gt, $gte, $lte, $eq use the same function internally, to test 
+    // failure for one is to test failure for all
     it('should fail because of a invalid $lt operator', function() {
         let result = mongoToSQL.convert(resource, [
         {"$match": {
