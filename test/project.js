@@ -232,4 +232,34 @@ describe('$project tests', function () {
 
         assert.equal(result, "SELECT (SELECT `users`.`state_id`, `states`.`name` as `stateName`, 'dummy' as `dummy`, true as `boolean`, 10.5 as `number` FROM `users` LEFT OUTER JOIN `states` ON `states`.`id` = `users`.`state_id`) as `sub` FROM `loginstore`");
     });
+
+    it('should return a subquery with a group and match optimization that uses the previous resource inside the $match', function () {
+        let result = mongoToSQL.convert("orders", [
+            {
+                "$project": {
+                    "sub": {
+                        "$query": {
+                            "resource": "payments",
+                            "pipeline": [
+                                {
+                                    "$group": {
+                                        sum: {
+                                            "$sum": "$value"
+                                        }
+                                    }
+                                },
+                                {
+                                    "$match": {
+                                        "forUUID": "#uuid"
+                                    }
+                                },
+                            ]
+                        }
+                    },
+                }
+            }
+        ]);
+
+        assert.equal(result, "SELECT (SELECT SUM(`value`) as `sum` FROM `payments` WHERE `forUUID` = `orders`.`uuid`) as `sub` FROM `orders`");
+    });
 });

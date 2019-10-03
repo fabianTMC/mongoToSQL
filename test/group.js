@@ -27,8 +27,7 @@ describe('$group tests', function() {
             }}
         ]);
 
-        assert.equal(result.success, false);
-        assert.equal(result.error, mongoToSQL.Errors.MISSING_ID);
+        assert.equal(result, "SELECT COUNT(*) as `count`, `user_id` as `user_id`, `age` as `age` FROM `loginstore`");
     })
 
     it('should fail because of the missing _id field in the second stage', function() {
@@ -50,8 +49,7 @@ describe('$group tests', function() {
             }}
         ]);
 
-        assert.equal(result.success, false);
-        assert.equal(result.error, mongoToSQL.Errors.MISSING_ID);
+        assert.equal(result, "SELECT COUNT(*) as `count`, `user_id` as `user_id`, `age` as `age` FROM (SELECT `user_id` as `_id`, COUNT(*) as `count`, `user_id` as `user_id`, `age` as `age` FROM `loginstore` GROUP BY `user_id`) t0");
     })
 
     it('should run a grouping by a string because of the misssing $ in _id', function() {
