@@ -472,4 +472,199 @@ describe('mixed pipeline tests', function() {
 
         assert.equal(result, "SELECT * FROM (SELECT `t1`.`uuid`, `t1`.`email`, `districts`.`name` as `districtName`, `states`.`name` as `stateName`, `countries`.`name` as `countryName` FROM (SELECT `uuid`, `email` FROM `users` WHERE `uuid` = 'abcd') t1 INNER JOIN `districts` INNER JOIN `states` INNER JOIN `countries` ON `districts`.`uuid` = `t1`.`district_id` AND `states`.`uuid` = `districts`.`state_id` AND `countries`.`uuid` = `states`.`country_id`) t2 WHERE `districtName` = 'The Nilgiris'");
     });
+
+    it('should succeed - $join and one $match', function() {
+        let result = mongoToSQL.convert("users",[
+            {
+                "$join": {
+                    as: {
+                        districts: {
+                            id: "district_id",
+                            name: "district_name"
+                        },
+                        states: {
+                            id: "states_id",
+                            name: "states_name"
+                        },
+                        countries: {
+                            id: "country_id",
+                            name: "country_name"
+                        },
+                    },
+                    on: [
+                    {
+                        from: {
+                            "previousTable": true,
+                            "field": "district_id"
+                        },
+                        to: {
+                            "table": "districts",
+                            "field": "id"
+                        },
+                    },
+                    {
+                        from: {
+                            "table": "districts",
+                            "field": "state_id"
+                        },
+                        to: {
+                            "table": "states",
+                            "field": "id"
+                        },
+                    }, 
+                    {
+                        joinType: "inner",
+                        from: {
+                            "table": "states",
+                            "field": "country_id"
+                        },
+                        to: {
+                            "table": "countries",
+                            "field": "id"
+                        },
+                    }]
+                }
+            },
+            {
+                "$match": {
+                    district_name: "The Nilgiris" 
+                }
+            },
+        ]);
+
+        assert.equal(result, "SELECT * FROM (SELECT `districts`.`id` as `district_id`, `districts`.`name` as `district_name`, `states`.`id` as `states_id`, `states`.`name` as `states_name`, `countries`.`id` as `country_id`, `countries`.`name` as `country_name` FROM `users` LEFT OUTER JOIN `districts` LEFT OUTER JOIN `states` INNER JOIN `countries` ON `districts`.`id` = `users`.`district_id` AND `states`.`id` = `districts`.`state_id` AND `countries`.`id` = `states`.`country_id`) t0 WHERE `district_name` = 'The Nilgiris'");
+    });
+
+    it('should succeed - $match, $join and one $match', function() {
+        let result = mongoToSQL.convert("users",[
+            {
+                "$match": {
+                    uuid: "abcd" 
+                },
+            },
+            {
+                "$join": {
+                    as: {
+                        districts: {
+                            id: "district_id",
+                            name: "district_name"
+                        },
+                        states: {
+                            id: "states_id",
+                            name: "states_name"
+                        },
+                        countries: {
+                            id: "country_id",
+                            name: "country_name"
+                        },
+                    },
+                    on: [
+                    {
+                        joinType: "inner",
+                        from: {
+                            "previousTable": true,
+                            "field": "district_id"
+                        },
+                        to: {
+                            "table": "districts",
+                            "field": "id"
+                        },
+                    },{
+                        from: {
+                            "table": "districts",
+                            "field": "state_id"
+                        },
+                        to: {
+                            "table": "states",
+                            "field": "id"
+                        },
+                    }, 
+                    {
+                        joinType: "inner",
+                        from: {
+                            "table": "states",
+                            "field": "country_id"
+                        },
+                        to: {
+                            "table": "countries",
+                            "field": "id"
+                        },
+                    }]
+                }
+            },
+            {
+                "$match": {
+                    district_name: "The Nilgiris" 
+                }
+            },
+        ]);
+
+        assert.equal(result, "SELECT * FROM (SELECT `districts`.`id` as `district_id`, `districts`.`name` as `district_name`, `states`.`id` as `states_id`, `states`.`name` as `states_name`, `countries`.`id` as `country_id`, `countries`.`name` as `country_name` FROM (SELECT * FROM `users` WHERE `uuid` = 'abcd') t0 INNER JOIN `districts` LEFT OUTER JOIN `states` INNER JOIN `countries` ON `districts`.`id` = `t0`.`district_id` AND `states`.`id` = `districts`.`state_id` AND `countries`.`id` = `states`.`country_id`) t1 WHERE `district_name` = 'The Nilgiris'");
+    });
+
+    it('should succeed - $join and one $match with join having keys from the main table being joined from', function() {
+        let result = mongoToSQL.convert("users",[
+            {
+                "$join": {
+                    as: {
+                        users: {
+                            id: "users_id",
+                            email: "users_email"
+                        },
+                        districts: {
+                            id: "district_id",
+                            name: "district_name"
+                        },
+                        states: {
+                            id: "states_id",
+                            name: "states_name"
+                        },
+                        countries: {
+                            id: "country_id",
+                            name: "country_name"
+                        },
+                    },
+                    on: [
+                    {
+                        from: {
+                            "previousTable": true,
+                            "field": "district_id"
+                        },
+                        to: {
+                            "table": "districts",
+                            "field": "id"
+                        },
+                    },
+                    {
+                        from: {
+                            "table": "districts",
+                            "field": "state_id"
+                        },
+                        to: {
+                            "table": "states",
+                            "field": "id"
+                        },
+                    }, 
+                    {
+                        joinType: "inner",
+                        from: {
+                            "table": "states",
+                            "field": "country_id"
+                        },
+                        to: {
+                            "table": "countries",
+                            "field": "id"
+                        },
+                    }]
+                }
+            },
+            {
+                "$match": {
+                    district_name: "The Nilgiris" 
+                }
+            },
+        ]);
+
+        assert.equal(result, "SELECT * FROM (SELECT `users`.`id` as `users_id`, `users`.`email` as `users_email`, `districts`.`id` as `district_id`, `districts`.`name` as `district_name`, `states`.`id` as `states_id`, `states`.`name` as `states_name`, `countries`.`id` as `country_id`, `countries`.`name` as `country_name` FROM `users` LEFT OUTER JOIN `districts` LEFT OUTER JOIN `states` INNER JOIN `countries` ON `districts`.`id` = `users`.`district_id` AND `states`.`id` = `districts`.`state_id` AND `countries`.`id` = `states`.`country_id`) t0 WHERE `district_name` = 'The Nilgiris'");
+    });
 })

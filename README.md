@@ -11,6 +11,7 @@
 * [$project](docs/project.md)
 * $match
 * $lookup
+* $join
 
 ## Supported $group operators
 ----
