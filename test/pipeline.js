@@ -71,6 +71,74 @@ describe('mixed pipeline tests', function() {
         assert.equal(result, "SELECT `status` FROM (SELECT * FROM (SELECT * FROM `inventory` WHERE `status` = 'A') t0 WHERE `status` = 'D') t1 WHERE `qty` = 2");
     });
 
+    it('optimize sql query based on $match with an order followed up', function() {
+        let result = mongoToSQL.convert(resource, [
+            {
+                "$match": {
+                    "status": "A",
+                }
+            },
+            {
+                "$order": [
+                    {
+                        "status": 1
+                    }
+                ]
+            }
+            
+        ]);
+        assert.equal(result, "SELECT * FROM `inventory` WHERE `status` = 'A' ORDER BY `status` ASC");
+    });
+
+
+    it('optimize sql query based on $match then a $project with an order followed up', function() {
+        let result = mongoToSQL.convert(resource, [
+            {
+                "$match": {
+                    "status": "A",
+                }
+            },
+            {
+                "$project": {
+                    "status": 1,
+                }
+            },
+            {
+                "$order": [
+                    {
+                        "status": 1
+                    }
+                ]
+            }
+            
+        ]);
+        assert.equal(result, "SELECT `status` FROM `inventory` WHERE `status` = 'A' ORDER BY `status` ASC");
+    });
+
+    it('optimize sql query based on $project then a $match with an order followed up', function() {
+        let result = mongoToSQL.convert(resource, [
+            {
+                "$project": {
+                    "status": 1,
+                }
+            },
+            {
+                "$match": {
+                    "status": "A",
+                }
+            },
+            {
+                "$order": [
+                    {
+                        "status": 1
+                    }
+                ]
+            }
+            
+        ]);
+        assert.equal(result, "SELECT * FROM (SELECT `status` FROM `inventory`) t0 WHERE `status` = 'A' ORDER BY `status` ASC");
+    });
+
     it('optimize sql query based on $match before $project at a later secondary stage with an order', function() {
         let result = mongoToSQL.convert(resource, [
             {
@@ -666,5 +734,112 @@ describe('mixed pipeline tests', function() {
         ]);
 
         assert.equal(result, "SELECT * FROM (SELECT `users`.`id` as `users_id`, `users`.`email` as `users_email`, `districts`.`id` as `district_id`, `districts`.`name` as `district_name`, `states`.`id` as `states_id`, `states`.`name` as `states_name`, `countries`.`id` as `country_id`, `countries`.`name` as `country_name` FROM `users` LEFT OUTER JOIN `districts` LEFT OUTER JOIN `states` INNER JOIN `countries` ON `districts`.`id` = `users`.`district_id` AND `states`.`id` = `districts`.`state_id` AND `countries`.`id` = `states`.`country_id`) t0 WHERE `district_name` = 'The Nilgiris'");
+    });
+
+    it('optimize sql query based on $match before $project at the initial stage and the followed by $limit', function() {
+        let result = mongoToSQL.convert(resource, [
+            {
+                "$match": {
+                    "status": "D",
+                    "qty": 2
+                }
+            },
+            {
+                "$project": {
+                    "status": 1
+                }
+            },
+            {
+                "$limit": 10,
+            }
+        ]);
+        
+        assert.equal(result, "SELECT `status` FROM `inventory` WHERE `status` = 'D' AND `qty` = 2 LIMIT 10");
+    });
+
+    it('optimize sql query based on $match before $project at the initial stage and the followed by $limit and then a match', function() {
+        let result = mongoToSQL.convert(resource, [
+            {
+                "$match": {
+                    "status": "D",
+                    "qty": 2
+                }
+            },
+            {
+                "$project": {
+                    "status": 1
+                }
+            },
+            {
+                "$limit": 10,
+            },
+            {
+                "$match": {
+                    "qty": 2
+                }
+            },
+            {
+                "$limit": 1,
+            }
+        ]);
+        
+        assert.equal(result, "SELECT * FROM (SELECT `status` FROM `inventory` WHERE `status` = 'D' AND `qty` = 2 LIMIT 10) t2 WHERE `qty` = 2 LIMIT 1");
+    });
+
+    it('optimize sql query based on $match before $project at the initial stage and the followed by $limit and $skip', function() {
+        let result = mongoToSQL.convert(resource, [
+            {
+                "$match": {
+                    "status": "D",
+                    "qty": 2
+                }
+            },
+            {
+                "$project": {
+                    "status": 1
+                }
+            },
+            {
+                "$limit": 10,
+            },
+            {
+                "$skip": 10
+            }
+        ]);
+        
+        assert.equal(result, "SELECT `status` FROM `inventory` WHERE `status` = 'D' AND `qty` = 2 LIMIT 10 OFFSET 10");
+    });
+
+    it('optimize sql query based on $match before $project at the initial stage and the followed by $limit, a $skip and then a match', function() {
+        let result = mongoToSQL.convert(resource, [
+            {
+                "$match": {
+                    "status": "D",
+                    "qty": 2
+                }
+            },
+            {
+                "$project": {
+                    "status": 1
+                }
+            },
+            {
+                "$limit": 10,
+            },
+            {
+                "$skip": 1
+            },
+            {
+                "$match": {
+                    "qty": 2
+                }
+            },
+            {
+                "$limit": 1,
+            }
+        ]);
+        
+        // t3 because tableCounter uses the index of the object rather than the actual counter
+        assert.equal(result, "SELECT * FROM (SELECT `status` FROM `inventory` WHERE `status` = 'D' AND `qty` = 2 LIMIT 10 OFFSET 1) t3 WHERE `qty` = 2 LIMIT 1");
     });
 })
