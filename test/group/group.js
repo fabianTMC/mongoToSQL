@@ -1,4 +1,4 @@
-var mongoToSQL = require("../lib/index");
+var mongoToSQL = require("../../lib/index");
 var assert = require('chai').assert;
 
 let resource = "loginstore";

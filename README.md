@@ -80,6 +80,25 @@ SELECT * FROM inventory WHERE status = 'D' AND qty = 2
 
 * Only arrays can be passed as the value to the $in operator.
 
+* Date/time math sample
+```js
+{
+    value: "2021-02-24 12:00:00", // MUST BE IN DATETIME OR DATE FORMAT. TIME ALONE WILL NOT WORK
+    type: "DATE || DATETIME || TIME",
+    operation: "subtract",
+    units: [
+        {
+            number: 7,
+            type: "days"
+        },
+        {
+            number: 6,
+            type: "hours"
+        }
+    ]
+}
+```
+
 
 # Example Usage
 -------

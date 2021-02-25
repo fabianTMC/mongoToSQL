@@ -4,8 +4,8 @@
     "description": "",
     "main": "lib/index.js",
     "scripts": {
-        "test": "mocha",
-        "test-stats": "nyc mocha"
+        "test": "mocha --recursive test/**",
+        "coverage": "nyc mocha --recursive test/**"
     },
     "author": "Fabian Enos <fabian.enos@gmail.com>",
     "license": "MIT",
@@ -20,6 +20,7 @@
         "nyc": "^13.1.0"
     },
     "dependencies": {
+        "moment": "^2.29.1",
         "mysql": "^2.13.0"
     }
 }
