@@ -288,7 +288,7 @@ describe('date math $match tests using mongoToSQL', function() {
             }}
         ]);
         
-        assert.equal(result, "SELECT * FROM `inventory` WHERE `qty` < '" + moment().add("1", "hour").format("hh:mm:ss") + "'");
+        assert.equal(result, "SELECT * FROM `inventory` WHERE `qty` < '" + moment().add("1", "hour").format("HH:mm:ss") + "'");
     });
 
     it('should succeed when 1 unit are passed to the date math specification inside the $lt operator along with an optional date value in conjunction with another field', function() {
