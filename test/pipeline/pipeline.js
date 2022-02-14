@@ -842,4 +842,37 @@ describe('mixed pipeline tests', function() {
         // t3 because tableCounter uses the index of the object rather than the actual counter
         assert.equal(result, "SELECT * FROM (SELECT `status` FROM `inventory` WHERE `status` = 'D' AND `qty` = 2 LIMIT 10 OFFSET 1) t3 WHERE `qty` = 2 LIMIT 1");
     });
+
+    it('optimize sql query based on $match before $project at the initial stage and the followed by $limit with a $skip and then a match', function() {
+        let result = mongoToSQL.convert(resource, [
+            {
+                "$match": {
+                    "status": "D",
+                    "qty": 2
+                }
+            },
+            {
+                "$project": {
+                    "status": 1
+                }
+            },
+            {
+                "$limit": {
+                    limit: 10,
+                    skip: 1,
+                },
+            },
+            {
+                "$match": {
+                    "qty": 2
+                }
+            },
+            {
+                "$limit": 1,
+            }
+        ]);
+        
+        // t3 because tableCounter uses the index of the object rather than the actual counter
+        assert.equal(result, "SELECT * FROM (SELECT `status` FROM `inventory` WHERE `status` = 'D' AND `qty` = 2 LIMIT 10 OFFSET 1) t2 WHERE `qty` = 2 LIMIT 1");
+    });
 })
