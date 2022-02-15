@@ -991,4 +991,147 @@ describe('mixed pipeline tests', function() {
         
         assert.equal(result, "SELECT `status`, `qty` FROM `inventory` WHERE `status` = 'D' AND `qty` = 2 ORDER BY `status` ASC OFFSET 1");
     });
+
+    it('optimize sql query based on project and then $limit after $order', function() {
+        let result = mongoToSQL.convert(resource, [
+            {
+                "$project": {
+                    "status": 1,
+                    "qty": 1,
+                },
+            },
+            {
+                "$order": [
+                    {
+                        "status": 1
+                    },
+                ],
+            },
+            {
+                "$limit": {
+                    "limit": 10,
+                    "skip": 1
+                }
+            },
+        ]);
+        
+        assert.equal(result, "SELECT `status`, `qty` FROM `inventory` ORDER BY `status` ASC LIMIT 10 OFFSET 1");
+    });
+
+    it('optimize sql query based on project and then $limit', function() {
+        let result = mongoToSQL.convert(resource, [
+            {
+                "$project": {
+                    "status": 1,
+                    "qty": 1,
+                },
+            },
+            {
+                "$limit": {
+                    "limit": 10,
+                    "skip": 1
+                }
+            },
+        ]);
+        
+        assert.equal(result, "SELECT `status`, `qty` FROM `inventory` LIMIT 10 OFFSET 1");
+    });
+
+    it('optimize sql query based on project, group and then $limit', function() {
+        let result = mongoToSQL.convert(resource, [
+            {
+                "$project": {
+                    "status": 1,
+                    "qty": 1,
+                },
+            },
+            {
+                "$group": {
+                    count: {
+                        "$count": 1
+                    },
+                }
+            },
+            {
+                "$limit": {
+                    "limit": 10,
+                    "skip": 1
+                }
+            },
+        ]);
+
+        assert.equal(result, "SELECT COUNT(*) as `count` FROM (SELECT `status`, `qty` FROM `inventory`) t0 LIMIT 10 OFFSET 1");
+    });
+
+    it('optimize sql query based on project, group and then $order followed by $limit', function() {
+        let result = mongoToSQL.convert(resource, [
+            {
+                "$project": {
+                    "status": 1,
+                    "qty": 1,
+                },
+            },
+            {
+                "$group": {
+                    count: {
+                        "$count": 1
+                    },
+                }
+            },
+            {
+                "$order": [
+                    {
+                        "status": 1
+                    },
+                ],
+            },
+            {
+                "$limit": {
+                    "limit": 10,
+                    "skip": 1
+                }
+            },
+        ]);
+
+        assert.equal(result, "SELECT COUNT(*) as `count` FROM (SELECT `status`, `qty` FROM `inventory`) t0 ORDER BY `status` ASC LIMIT 10 OFFSET 1");
+    });
+
+    it('optimize sql query based on match, project, group and then $order followed by $limit', function() {
+        let result = mongoToSQL.convert(resource, [
+            {
+                "$match": {
+                    "status": "D",
+                    "qty": 2
+                }
+            },
+            {
+                "$project": {
+                    "status": 1,
+                    "qty": 1,
+                },
+            },
+            {
+                "$group": {
+                    count: {
+                        "$count": 1
+                    },
+                }
+            },
+            {
+                "$order": [
+                    {
+                        "status": 1
+                    },
+                ],
+            },
+            {
+                "$limit": {
+                    "limit": 10,
+                    "skip": 1
+                }
+            },
+        ]);
+
+        assert.equal(result, "SELECT COUNT(*) as `count` FROM (SELECT `status`, `qty` FROM `inventory` WHERE `status` = 'D' AND `qty` = 2) t1 ORDER BY `status` ASC LIMIT 10 OFFSET 1");
+    });
 })
