@@ -875,4 +875,120 @@ describe('mixed pipeline tests', function() {
         // t3 because tableCounter uses the index of the object rather than the actual counter
         assert.equal(result, "SELECT * FROM (SELECT `status` FROM `inventory` WHERE `status` = 'D' AND `qty` = 2 LIMIT 10 OFFSET 1) t2 WHERE `qty` = 2 LIMIT 1");
     });
+
+    it('optimize sql query based on $limit after $order', function() {
+        let result = mongoToSQL.convert(resource, [
+            {
+                "$match": {
+                    "status": "D",
+                    "qty": 2
+                }
+            },
+            {
+                "$order": [
+                    {
+                        "status": 1
+                    },
+                ],
+            },
+            {
+                "$limit": {
+                    limit: 10,
+                    skip: 1,
+                },
+            },
+        ]);
+        
+        assert.equal(result, "SELECT * FROM `inventory` WHERE `status` = 'D' AND `qty` = 2 ORDER BY `status` ASC LIMIT 10 OFFSET 1");
+    });
+
+    it('optimize sql query based on match, project and then $limit after $order', function() {
+        let result = mongoToSQL.convert(resource, [
+            {
+                "$match": {
+                    "status": "D",
+                    "qty": 2
+                }
+            },
+            {
+                "$project": {
+                    "status": 1,
+                    "qty": 1,
+                },
+            },
+            {
+                "$order": [
+                    {
+                        "status": 1
+                    },
+                ],
+            },
+            {
+                "$limit": {
+                    limit: 10,
+                    skip: 1,
+                },
+            },
+        ]);
+        
+        assert.equal(result, "SELECT `status`, `qty` FROM `inventory` WHERE `status` = 'D' AND `qty` = 2 ORDER BY `status` ASC LIMIT 10 OFFSET 1");
+    });
+
+    it('optimize sql query based on match, project and then numeric $limit after $order', function() {
+        let result = mongoToSQL.convert(resource, [
+            {
+                "$match": {
+                    "status": "D",
+                    "qty": 2
+                }
+            },
+            {
+                "$project": {
+                    "status": 1,
+                    "qty": 1,
+                },
+            },
+            {
+                "$order": [
+                    {
+                        "status": 1
+                    },
+                ],
+            },
+            {
+                "$limit": 10
+            },
+        ]);
+        
+        assert.equal(result, "SELECT `status`, `qty` FROM `inventory` WHERE `status` = 'D' AND `qty` = 2 ORDER BY `status` ASC LIMIT 10");
+    });
+
+    it('optimize sql query based on match, project and then numeric $skip after $order', function() {
+        let result = mongoToSQL.convert(resource, [
+            {
+                "$match": {
+                    "status": "D",
+                    "qty": 2
+                }
+            },
+            {
+                "$project": {
+                    "status": 1,
+                    "qty": 1,
+                },
+            },
+            {
+                "$order": [
+                    {
+                        "status": 1
+                    },
+                ],
+            },
+            {
+                "$skip": 1
+            },
+        ]);
+        
+        assert.equal(result, "SELECT `status`, `qty` FROM `inventory` WHERE `status` = 'D' AND `qty` = 2 ORDER BY `status` ASC OFFSET 1");
+    });
 })
