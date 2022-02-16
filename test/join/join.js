@@ -308,7 +308,7 @@ describe('$join tests', function() {
         });
 
         assert.equal(result.success, true);
-        assert.equal(result.query, "SELECT * FROM `districts` LEFT OUTER JOIN `states` LEFT OUTER JOIN `countries` ON `states`.`id` = `districts`.`state_id` AND `countries`.`id` = `states`.`country_id`");
+        assert.equal(result.query, "SELECT * FROM `districts` LEFT OUTER JOIN `states` ON `states`.`id` = `districts`.`state_id` LEFT OUTER JOIN `countries` ON `countries`.`id` = `states`.`country_id`");
     });
 
     it('should succeed with multiple joins with different join types', function() {
@@ -338,7 +338,7 @@ describe('$join tests', function() {
         });
 
         assert.equal(result.success, true);
-        assert.equal(result.query, "SELECT * FROM `districts` LEFT OUTER JOIN `states` INNER JOIN `countries` ON `states`.`id` = `districts`.`state_id` AND `countries`.`id` = `states`.`country_id`");
+        assert.equal(result.query, "SELECT * FROM `districts` LEFT OUTER JOIN `states` ON `states`.`id` = `districts`.`state_id` INNER JOIN `countries` ON `countries`.`id` = `states`.`country_id`");
     });
 
     it('should succeed with multiple joins with specified on fields for all tables', function() {
@@ -381,7 +381,7 @@ describe('$join tests', function() {
         });
 
         assert.equal(result.success, true);
-        assert.equal(result.query, "SELECT `districts`.`id` as `district_id`, `districts`.`name` as `district_name`, `states`.`id` as `states_id`, `states`.`name` as `states_name`, `countries`.`id` as `country_id`, `countries`.`name` as `country_name` FROM `districts` LEFT OUTER JOIN `states` INNER JOIN `countries` ON `states`.`id` = `districts`.`state_id` AND `countries`.`id` = `states`.`country_id`");
+        assert.equal(result.query, "SELECT `districts`.`id` as `district_id`, `districts`.`name` as `district_name`, `states`.`id` as `states_id`, `states`.`name` as `states_name`, `countries`.`id` as `country_id`, `countries`.`name` as `country_name` FROM `districts` LEFT OUTER JOIN `states` ON `states`.`id` = `districts`.`state_id` INNER JOIN `countries` ON `countries`.`id` = `states`.`country_id`");
     });
 
     it('should succeed with multiple joins with specified on fields for only two tables', function() {
@@ -420,6 +420,6 @@ describe('$join tests', function() {
         });
 
         assert.equal(result.success, true);
-        assert.equal(result.query, "SELECT `states`.`id` as `states_id`, `states`.`name` as `states_name`, `countries`.`id` as `country_id`, `countries`.`name` as `country_name` FROM `districts` LEFT OUTER JOIN `states` INNER JOIN `countries` ON `states`.`id` = `districts`.`state_id` AND `countries`.`id` = `states`.`country_id`");
+        assert.equal(result.query, "SELECT `states`.`id` as `states_id`, `states`.`name` as `states_name`, `countries`.`id` as `country_id`, `countries`.`name` as `country_name` FROM `districts` LEFT OUTER JOIN `states` ON `states`.`id` = `districts`.`state_id` INNER JOIN `countries` ON `countries`.`id` = `states`.`country_id`");
     });
 });

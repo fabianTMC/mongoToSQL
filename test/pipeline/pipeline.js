@@ -600,7 +600,7 @@ describe('mixed pipeline tests', function() {
             },
         ]);
 
-        assert.equal(result, "SELECT * FROM (SELECT `districts`.`id` as `district_id`, `districts`.`name` as `district_name`, `states`.`id` as `states_id`, `states`.`name` as `states_name`, `countries`.`id` as `country_id`, `countries`.`name` as `country_name` FROM `users` LEFT OUTER JOIN `districts` LEFT OUTER JOIN `states` INNER JOIN `countries` ON `districts`.`id` = `users`.`district_id` AND `states`.`id` = `districts`.`state_id` AND `countries`.`id` = `states`.`country_id`) t0 WHERE `district_name` = 'The Nilgiris'");
+        assert.equal(result, "SELECT * FROM (SELECT `districts`.`id` as `district_id`, `districts`.`name` as `district_name`, `states`.`id` as `states_id`, `states`.`name` as `states_name`, `countries`.`id` as `country_id`, `countries`.`name` as `country_name` FROM `users` LEFT OUTER JOIN `districts` ON `districts`.`id` = `users`.`district_id` LEFT OUTER JOIN `states` ON `states`.`id` = `districts`.`state_id` INNER JOIN `countries` ON `countries`.`id` = `states`.`country_id`) t0 WHERE `district_name` = 'The Nilgiris'");
     });
 
     it('should succeed - $match, $join and one $match', function() {
@@ -667,7 +667,7 @@ describe('mixed pipeline tests', function() {
             },
         ]);
 
-        assert.equal(result, "SELECT * FROM (SELECT `districts`.`id` as `district_id`, `districts`.`name` as `district_name`, `states`.`id` as `states_id`, `states`.`name` as `states_name`, `countries`.`id` as `country_id`, `countries`.`name` as `country_name` FROM (SELECT * FROM `users` WHERE `uuid` = 'abcd') t0 INNER JOIN `districts` LEFT OUTER JOIN `states` INNER JOIN `countries` ON `districts`.`id` = `t0`.`district_id` AND `states`.`id` = `districts`.`state_id` AND `countries`.`id` = `states`.`country_id`) t1 WHERE `district_name` = 'The Nilgiris'");
+        assert.equal(result, "SELECT * FROM (SELECT `districts`.`id` as `district_id`, `districts`.`name` as `district_name`, `states`.`id` as `states_id`, `states`.`name` as `states_name`, `countries`.`id` as `country_id`, `countries`.`name` as `country_name` FROM (SELECT * FROM `users` WHERE `uuid` = 'abcd') t0 INNER JOIN `districts` ON `districts`.`id` = `t0`.`district_id` LEFT OUTER JOIN `states` ON `states`.`id` = `districts`.`state_id` INNER JOIN `countries` ON `countries`.`id` = `states`.`country_id`) t1 WHERE `district_name` = 'The Nilgiris'");
     });
 
     it('should succeed - $join and one $match with join having keys from the main table being joined from', function() {
@@ -733,7 +733,7 @@ describe('mixed pipeline tests', function() {
             },
         ]);
 
-        assert.equal(result, "SELECT * FROM (SELECT `users`.`id` as `users_id`, `users`.`email` as `users_email`, `districts`.`id` as `district_id`, `districts`.`name` as `district_name`, `states`.`id` as `states_id`, `states`.`name` as `states_name`, `countries`.`id` as `country_id`, `countries`.`name` as `country_name` FROM `users` LEFT OUTER JOIN `districts` LEFT OUTER JOIN `states` INNER JOIN `countries` ON `districts`.`id` = `users`.`district_id` AND `states`.`id` = `districts`.`state_id` AND `countries`.`id` = `states`.`country_id`) t0 WHERE `district_name` = 'The Nilgiris'");
+        assert.equal(result, "SELECT * FROM (SELECT `users`.`id` as `users_id`, `users`.`email` as `users_email`, `districts`.`id` as `district_id`, `districts`.`name` as `district_name`, `states`.`id` as `states_id`, `states`.`name` as `states_name`, `countries`.`id` as `country_id`, `countries`.`name` as `country_name` FROM `users` LEFT OUTER JOIN `districts` ON `districts`.`id` = `users`.`district_id` LEFT OUTER JOIN `states` ON `states`.`id` = `districts`.`state_id` INNER JOIN `countries` ON `countries`.`id` = `states`.`country_id`) t0 WHERE `district_name` = 'The Nilgiris'");
     });
 
     it('optimize sql query based on $match before $project at the initial stage and the followed by $limit', function() {
