@@ -1134,4 +1134,99 @@ describe('mixed pipeline tests', function() {
 
         assert.equal(result, "SELECT COUNT(*) as `count` FROM (SELECT `status`, `qty` FROM `inventory` WHERE `status` = 'D' AND `qty` = 2) t1 ORDER BY `status` ASC LIMIT 10 OFFSET 1");
     });
+
+
+    it('optimize sql query based on match with search, project, group and then $order followed by $limit', function () {
+        let result = mongoToSQL.convert(resource, [
+            {
+                "$match": {
+                    "status": {
+                        "$search": "D",
+                    },
+                    "qty": {
+                        "$search": 2,
+                    }
+                }
+            },
+            {
+                "$project": {
+                    "status": 1,
+                    "qty": 1,
+                },
+            },
+            {
+                "$group": {
+                    count: {
+                        "$count": 1
+                    },
+                }
+            },
+            {
+                "$order": [
+                    {
+                        "status": 1
+                    },
+                ],
+            },
+            {
+                "$limit": {
+                    "limit": 10,
+                    "skip": 1
+                }
+            },
+        ]);
+
+        assert.equal(result, "SELECT COUNT(*) as `count` FROM (SELECT `status`, `qty` FROM `inventory` WHERE `status` LIKE '%D%' AND `qty` LIKE '%2%') t1 ORDER BY `status` ASC LIMIT 10 OFFSET 1");
+    });
+
+    it('optimize sql query based on match with search and or, project, group and then $order followed by $limit', function () {
+        let result = mongoToSQL.convert(resource, [
+            {
+                "$match": {
+                    "$or": [
+                        {
+                            "status": {
+                                "$search": "D",
+                            }
+
+                        },
+                        {
+                            "qty": {
+                                "$search": 2,
+                            }
+                        }
+                    ]
+
+                }
+            },
+            {
+                "$project": {
+                    "status": 1,
+                    "qty": 1,
+                },
+            },
+            {
+                "$group": {
+                    count: {
+                        "$count": 1
+                    },
+                }
+            },
+            {
+                "$order": [
+                    {
+                        "status": 1
+                    },
+                ],
+            },
+            {
+                "$limit": {
+                    "limit": 10,
+                    "skip": 1
+                }
+            },
+        ]);
+
+        assert.equal(result, "SELECT COUNT(*) as `count` FROM (SELECT `status`, `qty` FROM `inventory` WHERE ( `status` LIKE '%D%' OR `qty` LIKE '%2%' )) t1 ORDER BY `status` ASC LIMIT 10 OFFSET 1");
+    });
 })
