@@ -64,6 +64,22 @@ describe('$search - $match tests using mongoToSQL', function () {
         assert.equal(result, "SELECT * FROM `inventory` WHERE `status` LIKE '%A%'");
     });
 
+    it('should case insensitive search because of a valid $search operator - string', function () {
+        let result = mongoToSQL.convert(resource, [
+            {
+                "$match": {
+                    status: {
+                        $search: "A"
+                    },
+                }
+            }
+        ], {
+            caseSensitive: false,
+        });
+
+        assert.equal(result, "SELECT * FROM `inventory` WHERE LOWER(`status`) LIKE LOWER('%A%')");
+    });
+
     it('should search because of a valid $search operator - number', function () {
         let result = mongoToSQL.convert(resource, [
             {
@@ -138,6 +154,27 @@ describe('$search - $match tests using mongoToSQL', function () {
         assert.equal(result, "SELECT * FROM `inventory` WHERE `status` LIKE '%A%' AND `qty` LIKE '%2%'");
     });
 
+    it('should case insensitive search because of multiple valid $search operator - string and number', function () {
+        let result = mongoToSQL.convert(resource, [
+            {
+                "$match": {
+                    status: {
+                        $search: "A"
+                    },
+
+                    qty: {
+                        $search: 2
+                    },
+                }
+            }
+        ], {
+            caseSensitive: false,
+        });
+
+        assert.equal(result, "SELECT * FROM `inventory` WHERE LOWER(`status`) LIKE LOWER('%A%') AND LOWER(`qty`) LIKE LOWER('%2%')");
+    });
+
+
     it('should search because of multiple valid $search operator with $or', function () {
         let result = mongoToSQL.convert(resource, [
             {
@@ -160,5 +197,31 @@ describe('$search - $match tests using mongoToSQL', function () {
         ]);
 
         assert.equal(result, "SELECT * FROM `inventory` WHERE ( `status` LIKE '%A%' OR `qty` LIKE '%2%' )");
+    });
+
+    it('should case insensitive search because of multiple valid $search operator with $or', function () {
+        let result = mongoToSQL.convert(resource, [
+            {
+                "$match": {
+                    $or: [
+                        {
+                            status: {
+                                $search: "A"
+                            }
+                        },
+
+                        {
+                            qty: {
+                                $search: 2
+                            }
+                        },
+                    ]
+                }
+            }
+        ], {
+            caseSensitive: false,
+        });
+
+        assert.equal(result, "SELECT * FROM `inventory` WHERE ( LOWER(`status`) LIKE LOWER('%A%') OR LOWER(`qty`) LIKE LOWER('%2%') )");
     });
 });
