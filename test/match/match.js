@@ -84,7 +84,7 @@ describe('$match tests using mongoToSQL', function() {
         assert.equal(result, "SELECT * FROM `inventory` WHERE `qty` >= 2.2");
     });
     
-    it('should succeed because of a valid $eq operator', function() {
+    it('should succeed because of a valid $eq operator - number', function() {
         let result = mongoToSQL.convert(resource, [
         {"$match": {
             qty: {
@@ -94,6 +94,42 @@ describe('$match tests using mongoToSQL', function() {
         ]);
         
         assert.equal(result, "SELECT * FROM `inventory` WHERE `qty` = 2");
+    });
+
+    it('should succeed because of a valid $eq operator - string', function() {
+        let result = mongoToSQL.convert(resource, [
+        {"$match": {
+            qty: {
+                $eq: "20"
+            }
+        }}
+        ]);
+        
+        assert.equal(result, "SELECT * FROM `inventory` WHERE `qty` = '20'");
+    });
+
+    it('should succeed because of a valid $eq operator - boolean', function() {
+        let result = mongoToSQL.convert(resource, [
+        {"$match": {
+            qty: {
+                $eq: false
+            }
+        }}
+        ]);
+        
+        assert.equal(result, "SELECT * FROM `inventory` WHERE `qty` IS false");
+    });
+
+    it('should succeed because of a valid $ne operator - boolean', function() {
+        let result = mongoToSQL.convert(resource, [
+        {"$match": {
+            qty: {
+                $ne: false
+            }
+        }}
+        ]);
+        
+        assert.equal(result, "SELECT * FROM `inventory` WHERE `qty` IS NOT false");
     });
     
     it('should succeed because of a valid $ne operator', function() {
@@ -110,11 +146,24 @@ describe('$match tests using mongoToSQL', function() {
     
     // NOTE: Since $lt, $gt, $gte, $lte, $eq use the same function internally, to test 
     // failure for one is to test failure for all
-    it('should fail because of a invalid $lt operator', function() {
+    it('should fail because of a invalid $lt value', function() {
         let result = mongoToSQL.convert(resource, [
         {"$match": {
             qty: {
                 $lt: [2]
+            }
+        }}
+        ]);
+        
+        assert.equal(result.success, false);
+        assert.equal(result.error, mongoToSQL.Errors.NOT_A_NUMBER);
+    });
+
+    it('should fail because of a invalid $lt value', function() {
+        let result = mongoToSQL.convert(resource, [
+        {"$match": {
+            qty: {
+                $lt: false
             }
         }}
         ]);
