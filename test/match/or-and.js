@@ -6,6 +6,18 @@ let resource = "inventory";
 describe('$or $and - $match tests using mongoToSQL', function() {
     // NOTE: Since $or and $and use the same function internally, to test 
     // failure for one is to test failure for all
+    it('should fail because of an invalid $and operator', function() {
+        let result = mongoToSQL.convert(resource, [
+        {"$match": {
+            $and: []
+        }}
+        ]);
+        
+        assert.equal(result.success, false);
+        assert.equal(result.error, mongoToSQL.Errors.NOT_AN_ARRAY("and"));
+    });
+    
+
     it('should fail because of an invalid $or operator', function() {
         let result = mongoToSQL.convert(resource, [
         {"$match": {
@@ -14,7 +26,7 @@ describe('$or $and - $match tests using mongoToSQL', function() {
         ]);
         
         assert.equal(result.success, false);
-        assert.equal(result.error, mongoToSQL.Errors.OR_NOT_AN_ARRAY);
+        assert.equal(result.error, mongoToSQL.Errors.NOT_AN_ARRAY("or"));
     });
     
     it('should fail because of an invalid $or operator', function() {
@@ -25,7 +37,7 @@ describe('$or $and - $match tests using mongoToSQL', function() {
         ]);
         
         assert.equal(result.success, false);
-        assert.equal(result.error, mongoToSQL.Errors.OR_NOT_AN_ARRAY);
+        assert.equal(result.error, mongoToSQL.Errors.NOT_AN_ARRAY("or"));
     });
 
     it('should succeed because of a valid $or operator', function() {

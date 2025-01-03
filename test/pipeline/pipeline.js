@@ -1229,4 +1229,39 @@ describe('mixed pipeline tests', function() {
 
         assert.equal(result, "SELECT COUNT(*) as `count` FROM (SELECT `status`, `qty` FROM `inventory` WHERE ( `status` LIKE '%D%' OR `qty` LIKE '%2%' )) t1 ORDER BY `status` ASC LIMIT 10 OFFSET 1");
     });
+
+    it('should handle a join with spaces in the name of the main resource', function () {
+        let result = mongoToSQL.convert("Districts With Spaces", [
+            {
+                "$join": {
+                    "as": {
+                        "Districts With Spaces": {
+                            "id": "id",
+                            "name": "name",
+                            "country_id": "country_id",
+                        },
+                        "countries": {
+                            "name": "country_name"
+                        }
+                    },
+                    "on": [
+                        {
+                            "joinType": "inner",
+                            "from": {
+                                "table": "Districts With Spaces",
+                                "field": "country_id"
+                            },
+                            "to": {
+                                "table": "countries",
+                                "field": "id"
+                            }
+                        }
+                    ]
+                }
+            }
+        ]);
+
+        assert.equal(result, "SELECT `Districts With Spaces`.`id` as `id`, `Districts With Spaces`.`name` as `name`, `Districts With Spaces`.`country_id` as `country_id`, `countries`.`name` as `country_name` FROM `Districts With Spaces` INNER JOIN `countries` ON `countries`.`id` = `Districts With Spaces`.`country_id`");
+    });
+
 })
